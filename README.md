@@ -68,3 +68,38 @@ The assignments make extensive use of the following R libraries:
 
    ```bash
    git clone https://github.com/yourusername/your-repository-name.git
+
+2. Install Package:
+
+   ```bash
+   install.packages(c("tidyverse", "rvest", "ggplot2", "MASS", "lubridate"))
+
+3. Run Assignments:
+
+  -  Open .Rmd files in RStudio.
+  -  Knit them to generate reports in PDF or HTML format.
+
+4. Acknowledgments:
+Professor Tanu Mitra for guidance in this course.
+
+### Repository Structure
+
+├── ProblemSet1.Rmd
+├── ProblemSet2.Rmd
+├── ProblemSet3.Rmd
+├── ProblemSet4.Rmd
+├── ProblemSet5.Rmd
+├── ProblemSet6.Rmd
+├── ProblemSet7.Rmd
+├── data/
+│   ├── fatherson.csv
+│   ├── boston.csv
+│   ├── nycflights.csv
+│   ├── zagat.csv
+│   └── ...
+├── README.md
+└── figures/
+    ├── scatterplot.png
+    ├── histogram.png
+    └── ...
+
