@@ -67,7 +67,7 @@ The assignments make extensive use of the following R libraries:
 1. **Clone the Repository**:
 
    ```bash
-   git clone https://github.com/yourusername/your-repository-name.git
+   git clone https://github.com/ferozk0333/R_Practice.git
 
 2. Install Package:
 
