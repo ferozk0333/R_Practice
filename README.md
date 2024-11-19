@@ -80,26 +80,5 @@ The assignments make extensive use of the following R libraries:
   -  Knit them to generate reports in PDF or HTML format.
 
 4. Acknowledgments:
-Professor Tanu Mitra for guidance in this course.
-
-### Repository Structure
-
-├── ProblemSet1.Rmd
-├── ProblemSet2.Rmd
-├── ProblemSet3.Rmd
-├── ProblemSet4.Rmd
-├── ProblemSet5.Rmd
-├── ProblemSet6.Rmd
-├── ProblemSet7.Rmd
-├── data/
-│   ├── fatherson.csv
-│   ├── boston.csv
-│   ├── nycflights.csv
-│   ├── zagat.csv
-│   └── ...
-├── README.md
-└── figures/
-    ├── scatterplot.png
-    ├── histogram.png
-    └── ...
+ - Professor Tanu Mitra for guidance in this course.
 
