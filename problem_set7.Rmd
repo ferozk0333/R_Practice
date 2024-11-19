@@ -1,0 +1,400 @@
+---
+title: 'IMT 573: Problem Set 7 - Regression'
+author: "Feroz Khan"
+date: 'Due: Tuesday, November 19, 2024 by 10:00PM PT'
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document:
+    df_print: paged
+---
+
+<!-- This syntax can be used to add comments that are ignored during knitting process. -->
+
+##### Collaborators: <!-- BE SURE TO LIST ALL COLLABORATORS HERE! -->
+
+##### Instructions:
+
+Before beginning this assignment, please ensure you have access to R and RStudio; this can be on your own personal computer or on the IMT 573 R Studio Server. 
+
+1. Download the `problem_set7.Rmd` file from Canvas or save a copy to your local directory on RStudio Server. Open `problem_set7.Rmd` in RStudio and supply your solutions to the assignment by editing `problem_set7.Rmd`. 
+
+2. Replace the "Insert Your Name Here" text in the `author:` field with your own full name. Any collaborators must be listed on the top of your assignment. 
+
+3. Be sure to include well-documented (e.g. commented) code chucks, figures, and clearly written text chunk explanations as necessary. Any figures should be clearly labeled and appropriately referenced within the text. Be sure that each visualization adds value to your written explanation; avoid redundancy -- you do not need four different visualizations of the same pattern.
+
+4.  Collaboration on problem sets is fun and useful, and we encourage it, but each student must turn in an individual write-up in their own words as well as code/work that is their own.  Regardless of whether you work with others, what you turn in must be your own work; this includes code and interpretation of results. The names of all collaborators must be listed on each assignment. Do not copy-and-paste from other students' responses or code.
+
+5. All materials and resources that you use (with the exception of lecture slides) must be appropriately referenced within your assignment.  
+
+6. Remember partial credit will be awarded for each question for which a serious attempt at finding an answer has been shown. Students are \emph{strongly} encouraged to attempt each question and to document their reasoning process even if they cannot find the correct answer. If you would like to include R code to show this process, but it does not run without errors, you can do so with the `eval=FALSE` option. (Note: I am also using the `include=FALSE` option here to not include this code in the PDF, but you need to remove this or change it to `TRUE` if you want to include the code chunk.)
+
+```{r example chunk with a bug, eval=FALSE, include=FALSE}
+a + b # these object dont' exist 
+# if you run this on its own it with give an error
+```
+
+7. When you have completed the assignment and have **checked** that your code both runs in the Console and knits correctly when you click `Knit PDF`, rename the knitted PDF file to `ps5_YourLastName_YourFirstName.pdf`, and submit the PDF file on Canvas.
+
+
+##### Setup: 
+
+In this problem set you will need, at minimum, the following R packages.
+
+```{r Setup, message=TRUE}
+# Load standard libraries
+library(tidyverse)
+library(MASS) # Modern applied statistics functions
+
+```
+
+
+# 1. Housing Values in Suburbs of Boston (50 pts)
+
+In this problem we will use the Boston dataset that is available in the \texttt{MASS} package. This dataset contains information about median house value for 506 neighborhoods in Boston, MA. Load this data and use it to answer the following questions.
+
+Use the following predictors: `rm`, `lstat`,  and add an additional predictors of your choice, something that you consider might be interesting to analyze. Provide a rationale for your choice
+For each predictor do the following:
+
+#### (a) Simple Linear Regression.
+
+1. (10 pts) Make a scatterplot that displays how `medv` is related to that predictor and add regression line to that plot. Comment on the result: do you see any relationship? 
+
+    *Hint: add regression line with `geom_smooth` or `abline` methods*
+
+2. (10 pts) Now fit a simple linear regression model to predict the response. Show the regression output. 
+
+3. (10 pts) Interpret the slope. Explain why do you think you see (or don't see) the relationship on the figure or the model.  Try to think about the possible social processes that make certain neighborhoods more or less expensive.
+
+#### (b) Multiple Regression. 
+
+(10 pts) Fit a multiple regression model to predict the response using all of the predictors. Describe your results. For which predictors can we reject the null hypothesis $H_0: \beta_j = 0$?
+
+#### (c) Compare and Interpret. 
+
+(10 pts) Compare simple and multiple regression results: In the question above, you had built a kitchen-sink model by fitting a multiple regression model to predict the response using all of the predictors. Now compare the results for `rm`, `lstat` and `indus` across the multiple regression and the simple regressions that you just built. 
+Interpret your results. 
+Explain why do the values differ.
+
+### Solution 1 (a)
+
+
+1. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+I will use 'dis' as my third predictor as proximity to employment centers can lead to increase in demand of property, inturn increasing prices.
+```{r}
+data = Boston
+
+#plot 1
+ggplot(data = data,
+       mapping = aes(rm,medv))+
+  geom_point(alpha = 0.5)+
+  geom_smooth(method = lm, se = F)+
+  theme_minimal()+
+  labs(x = "average number of rooms per dwelling",
+       y = "median value of owner-occupied homes in $1000s",
+       )
+  
+#plot 2
+ggplot(data = data,
+       mapping = aes(lstat,medv))+
+  geom_point(alpha = 0.5, col = "red")+
+  geom_smooth(method = lm, se = F)+
+  theme_minimal()+
+  labs(x = "lower status of the population",
+       y = "median value of owner-occupied homes in $1000s",
+       )
+
+#plot 3
+ggplot(data = data,
+       mapping = aes(dis,medv))+
+  geom_point(alpha = 0.5, col = "lightgreen")+
+  geom_smooth(method = lm, se = F)+
+  theme_minimal()+
+  labs(x = "weighted mean of distances to five Boston employment centre",
+       y = "median value of owner-occupied homes in $1000s",
+       )
+```
+Observation: lstat has a relatively stronger linear relationship with medv. Let's check the correlation coefficient as well for all three. 
+
+```{r}
+print(paste("Coefficient of correlation between rm and medv: ",cor(x = data$rm, y = data$medv)))
+print(paste("Coefficient of correlation between lstat and medv: ",cor(x = data$lstat, y = data$medv)))
+print(paste("Coefficient of correlation between dis and medv: ",cor(x = data$dis, y = data$medv)))
+
+```
+
+Clearly, it's the highest absolute value for lstat and medv.
+
+
+2. \textbf{\textcolor{red}{Solution:}}
+
+
+###### Insert Response
+```{r}
+y = data[,c("medv")]  #reponse variable
+x = as.matrix(data[,c("rm","lstat","dis")])   #independent variables
+
+```
+
+```{r}
+
+reg_rm = lm(rm ~ medv, data = data)
+summary(reg_rm)
+
+```
+```{r}
+reg_lstat = lm(lstat ~ medv, data = data)
+summary(reg_lstat)
+
+```
+```{r}
+reg_dis = lm(dis ~ medv, data = data)
+summary(reg_dis)
+
+
+```
+Observation:This is a pretty weak model as the R-square values are not close to 1. Lower explanatory power.
+
+
+3. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+Observation:
+1. The models are weak and have less explanatory power (R-square value is low). 
+2. rm and dis have postive intercepts while lstat has negative intercept showing positive and negative linearity respectively.
+3. I think societal perception about a locality has a lot of impact on pricing. The presence of a few high profile residents can bump prices up, having clean and well maintained infrastructure could be another. Also, proximity to schools, markets and recreational parks could have an impact.
+
+
+
+### Solution 1 (b)
+
+
+###### Insert Response
+```{r}
+
+#lets fit a multiple model
+multiple_reg = lm(medv ~ rm + lstat + dis, data = Boston)
+
+#let check model performance
+summary(multiple_reg)
+
+```
+Observation: The multiple regression model has a higher explanatory power based on R-square results (64.47% variation in medv can be explained by predictors). Further, the residuals indicate how much variation is there between predicted and actual values. There is some variation in this model.
+
+The F-statistic (306.4, p-value: < 2.2e-16) indicates that the model as a whole is statistically significant, meaning that the predictors together explain a significant portion of the variability in medv.
+
+All three predictors have a p-value <  0.05. We reject null hypothesis, and can conclude that they have statistically significant impact on pricing.
+
+### Solution 1 (c)
+
+Insert Response
+
+Observation:
+Simple regression models overestimate the impact of predictors by ignoring other variables, whereas multiple regression models 
+provides a more accurate and holistic picture of the predictors' contributions to the response variable.
+
+In this question, the multiple regression model performed better compared to simple model. There is a difference in coefficients as well. Since, simple models do not account for correlation between independent variables(lm, dis, lstat), the coefficient values can be higher. Whereas, multiple models account for that relationship as well, hence cutting it off from the coefficient values. 
+
+In short, simple models do not encapsulate indirect impact of other variables on predictor's relationship with response variable.
+
+Simple models:
+
+1. About 48.35% of the variance in rm is explained by medv, indicating a strong linear relationship.
+2. About 54.41% of the variance in lstat is explained by medv, showing a moderately strong linear relationship.
+3. Only 6.25% of the variance in dis is explained by medv, indicating a weak linear relationship.
+
+The median value of house is more influenced by rm and lstat socioeconomic factors compared to dis.
+
+Multiple model:
+
+1. 64.47% variation can be explained, indicating a strong linear relationship.
+
+
+# 2. Price of Meal in Italian Restaurants in NYC (42 pts) 
+
+
+The Italian restaurants in New York City are legendary, and it's time to put your newly developed regression modeling skills to work to udnerstand how they operate. What are the factors that contribute to the price of a meal at Italian restaurants in New York City?
+You will need to address this question with a series of multiple regression models.
+The Zagat guide is an influential review of restaurants. You will be looking at the numeric reviews posted on the Zagat review. Each restaurant is rated on a scale of 0 to 30 for the quality of its food, decor, and service.The data comes in the form of Zagat reviews from 168 Italian restaurants in New York City from 2001. 
+
+\begin{enumerate}
+
+\item (7 pts) Inspect the data using your usual inspect data functions to get a sense of how the variables are encoded and what values they typically take on. For example, the East variable records whether the restaurant is located east or west of Fifth Avenue, which historically divides the island of Manhattan. Describe the data and variables.
+
+\item (7 pts) Based on your knowledge of the restaurant industry, do you think that the quality of the food in a restaurant is an important determinant of the price of a meal at that restaurant? How will you prove your intuition (quality determines or does not determine) using the nyc data and your newly developed regression modeling skills? Before writing code explain your choice of response variable, explanatory variable(s), and modeling technique. 
+
+\item (7 pts) Now build the model based on the choices you made in the previous question (i.e. write code below).
+
+\item (7 pts) Visualize the fitted model
+
+\item (7 pts) Interpret model, model coefficients and see whether you were able to prove or disprove your intuition. On top of reporting the coefficient value and model fit you need to interpret coefficients in plain English.
+
+\item (7 pts) You plan to visit an Italian restaurant for lunch. You check the Zagat review for Plaza and found the quality of food for that restaurant is rated as 20. What's your best estimate of the price of a meal at Plaza.
+
+\end{enumerate}
+
+### Solution 2
+
+
+
+1. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+```{r}
+#Loading dataset and displaying first 5 rows
+df = read.delim("C:/Users/DELL/Downloads/nyc.csv",sep = ",")
+head(df,5)
+summary(df)
+```
+Price: Numeric, representing meal costs. Typical values might vary from inexpensive to high-end restaurant prices.
+Food, Decor, Service: Ratings on a scale, generally clustered in the upper range if the dataset focuses on well-reviewed restaurants.
+East: A binary variable, where 1 represents east of Fifth Avenue and 0 represents west.
+Data Size: The dataset contains 168 observations.
+
+Note that there are a lot more east reviews than west.
+
+```{r}
+print(paste("Number of reviews of east : ",nrow(df %>%
+  filter(East == 1))))
+print(paste("Number of reviews of west : ",nrow(df %>%
+  filter(East == 0))))
+
+```
+Observations:
+
+1. Price
+Range: 19 to 65
+Mean: 42.7, indicating moderately priced meals on average.
+
+2. Food
+Range: 16 to 25, mean of 20.6. Relatively high food quality overall.
+
+3. Decor          
+Range: 6 to 25, mean of 17.69. Wider variation in decor ratings compared to food.
+
+4. Service
+Range: 14 to 24, mean of 19.4. Service quality is moderately high.
+
+5. East
+Mean: 0.631, approx 63% of the restaurants are located east of Fifth Avenue.
+
+2. \textbf{\textcolor{red}{Solution:}}
+
+
+###### Insert Response
+
+Yes, quality of food is a determinant of price of the meal. However, price of meal can also be effected by ambiance or decor, service quality and location.
+
+I intend to use linear regression to check if food quality significantly influences price of meal.
+
+Here, response variable will be price of meal and explanatory or independent variable would be food quality.
+
+#### Defining hypothesis
+
+Alternate H: Food quality significantly affects meal prices
+Null H: Food quality does not significantly affect meal prices 
+
+#### Modelling Technique
+
+Simple Linear Regression -> First we will apply simple model
+Multiple Linear Regression -> Then check with multiple model to account for other variables as well.
+
+#### Evaluation
+Check p-value < 0.05 and Adjusted R-square for explanatory power.
+
+
+3. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+```{r}
+#Fit simple linear model
+lin_reg = lm(Price ~ Food , data = df)
+summary(lin_reg)
+
+#Fit multiple linear model
+lin_reg_multiple = lm (Price ~ Food + Decor + Service + East, data = df)
+summary(lin_reg_multiple)
+```
+Observation: The summary tables of both models are very different.
+
+4. \textbf{\textcolor{red}{Solution:}}
+
+
+###### Insert Response
+
+```{r}
+#Simple model
+ggplot(data = df,
+       mapping = aes(Food,Price))+
+  geom_point(alpha = 0.5, col = "green")+
+  geom_smooth(method = lm, se = FALSE, col = "red")+
+  labs(x = "Food quality",
+       y = "Price of meal in US Dollars",
+       title = "Simple Regression: Price Vs Food")+
+  theme_minimal()
+
+#Multiple model
+
+predictions = predict(lin_reg_multiple)
+
+ggplot(data = df,
+       mapping = aes(x = predictions, y = Price))+
+  geom_point(col = "blue", alpha = 0.4)+
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed")+
+  labs(title = "Multiple Regression: Observed vs Predicted Prices",
+       x = "Predicted Price",
+       y = "Observed Price") +
+  theme_minimal()
+
+
+```
+
+
+5. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+Observation:
+
+#### Simple LM
+
+1. Intercept : B0 = -17.83. When food = 0, the price is negative which is not possible.
+2. Slope = 2.94. This means that for every 1 point increase in food, the price increases by 2.94 on average.
+3. Model fit: 39% of variance in Price is explained by Food.
+4. p-value < 0.05
+
+Food quality significantly impacts Price. However, much of the variation remains unexplained
+
+
+#### Multiple LM
+
+1. Restaurants east charge on average $2.07 more
+2. For every 1-point increase in food quality, price increases by $1.54
+3. 62.8% approx variation is explained by the model
+4. Food, Decor, and East are significant predictors. Service is not one (high p-value).
+
+Yes, food quality significantly determines price but decor has an even higher impact in the multiple regression model.
+
+6. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+Using simple model,
+
+Price = Intercept + Slope * (Food)
+
+Intercept = -17.83
+Slope = 2.94
+
+Food = 20
+
+Hence, Price = -17.83 + 2.94 * (20)
+
+The price of the meal would be an estimated $40.97
+
+
