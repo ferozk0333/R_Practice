@@ -1,0 +1,604 @@
+---
+title: "IMT 573: Problem Set 1 - Exploring Data"
+author: "Feroz Khan"
+date: 'Due: Tuesday, October 8, 2024 by 10:00AM PT'
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+<!-- This syntax can be used to add comments that are ignored during knitting process. -->
+
+##### Collaborators: <!-- BE SURE TO LIST ALL COLLABORATORS HERE! -->
+
+##### Instructions:
+
+Before beginning this assignment, please ensure you have access to R and RStudio. 
+
+1. Download the `problem_set1.Rmd` file from Canvas. Open `problem_set1.Rmd` in RStudio and supply your solutions to the assignment by editing `problem_set1.Rmd`. 
+
+2. Replace the "Insert Your Name Here" text in the `author:` field with your own full name. Any collaborators must be listed on the top of your assignment. Collaboration shouldn't be confused with group project work (where each person does a part of the project). Working on problem sets should be your individual contribution. More on that in point 8.
+
+3. Be sure to include well-documented (e.g. commented) code chucks, figures, and clearly written text chunk explanations as necessary. Any figures should be clearly labeled and appropriately referenced within the text. Be sure that each visualization adds value to your written explanation; avoid redundancy -- you do not need four different visualizations of the same pattern.
+
+4. All materials and resources that you use (with the exception of lecture slides) must be appropriately referenced within your assignment. In particular, note that Stack Overflow is licenses as Creative Commons (CC-BY-SA). This means you have to attribute any code you refer from SO.
+
+5. Partial credit will be awarded for each question for which a serious attempt at finding an answer has been shown. But please **DO NOT** submit pages and pages of hard-to-read code and attempts that is impossible to grade. That is, avoid redundancy. Remember that one of the key goals of a data scientist is to produce coherent reports that others can easily follow.  Students are \emph{strongly} encouraged to attempt each question and to document their reasoning process even if they cannot find the correct answer. If you would like to include R code to show this process, but it does not run without errors you can do so with the `eval=FALSE` option as follows:
+
+```{r example chunk with a bug, eval=FALSE}
+a + b # these object dont' exist 
+# if you run this on its own it with give an error
+```
+
+6. When you have completed the assignment and have **checked** that your code both runs in the Console and knits correctly when you click `Knit PDF`, rename the knitted PDF file to `ps1_ourLastName_YourFirstName.pdf`, and submit the PDF file on Canvas.
+
+7.  Collaboration is often fun and useful, but each student must turn in an individual write-up in their own words as well as code/work that is their own.  Regardless of whether you work with others, what you turn in must be your own work; this includes code and interpretation of results. The names of all collaborators must be listed on each assignment. Do not copy-and-paste from other students' responses or code.
+
+```{r setup, include=FALSE}
+# load required libraries
+library(dplyr)
+```
+
+
+#### Problem 1: Basic R Programming (20pt)
+
+#### Problem 1.1: Function for calculating BMI (10pt)
+
+1. (2pt) In your response, before presenting your code for the function, tell us your official reference for the BMI formulae.
+*NOTE: You would have to go to external sources to find the formula of bmi.*
+
+2. (8pt) Write a function, `calculate_bmi` to calculate a person's body mass index, when given two input parameters, 1). weight in pounds and 2) height in inches.
+
+
+##### Solution 1.1
+
+###### Insert Response 
+
+The Body-Mass Index tells the ratio of weight to height of an individual.
+The formula for calculating BMI when height is in inches and weight is in pounds is 
+
+  BMI = 703 * weight(lbs) / height^2(in^2)
+  
+Source: www.calculatorsoup.com/calculators/health/bmi-calculator.php
+
+```{r calculate_bmi_function, message=FALSE}
+
+calculate_bmi = function(weight, height){   # defining the BMI function that takes in two arguments
+  return ((weight*703)/(height)^2)          # returning the output
+  
+}
+
+calculate_bmi(154,69)                       # calling the function
+```
+
+
+#### Problem 1.2: Vectors and Vectorized Operations (10pt)
+
+This question asks you to perform a few basic programming tasks in R, namely to create functions and handle vectors and vectorized operations. A brief overview of these topics is in [R notes](http://faculty.washington.edu/otoomet/machinelearning-R/r-programming-language-and-a-statistical-system.html#base-language).
+
+Unlike in almost every other task, in this you do not have to write text. Just code and its output is probably enough. But remember–you have not just to solve the problem, but to demonstrate that you understand what you do!
+
+1. (2pt) Write a function that takes in time in the form of HHMM (hours-minutes) as a number and returns it as HH.HH (hours, fractions of hours) as a number. For instance, it should convert 730 (7h 30m) into 7.5 (7.5 hrs) and 1245 into 12.75. Assume the argument is passed as a number, and it should return a number, i.e. not print it but return.
+Test it demonstrating that 730 and 1245 are converted correctly.
+Hint: use two less-common mathematical operators %/% for integer division (division that drops the
+fraction part) and %% for modulo.
+Loops and if/else in R work in a fairly similar fashion as in other programming languages. Vectors (here we use atomic vectors) are vectorized data types that in R are built-in types, but typically need additional libraries in other languages.
+This code snippet creates a vector with both positive and negative numbers:
+
+```{r seed}
+set.seed(1)
+v <- sample(10, 20, replace=TRUE) - 5 
+v
+
+
+```
+
+The following two questions regard this vector:
+
+2. (2pt) Use a for-loop to extract only positive numbers from this vector.
+Hint: check out Creating vectors in loop in http://faculty.washington.edu/otoomet/machinelearning-R/r-programming-language-and-a-statistical-system.html#control-structures, and use if-
+else. You should create an empty vector, loop over all the elements of v, check if the element is
+positive, and if yes, then append it to v
+
+3. (3pt) Perform the same task without the loop using logical indexing instead.
+Hint: check out Logical indexing http://faculty.washington.edu/otoomet/machinelearning-R/r-programming-language-and-a-statistical-system.html#logical-indexing.
+
+4. Finally, consider three vectors:
+
+```{r threevec}
+v1 <- 9
+v2 <- c(1,2)
+v3 <- c(2,3,-4)
+```
+
+
+(3pt) Write a function that tests if the vectors have negative elements, and prints an appropriate message. Test the negativity of these three vectors to show the function works correctly.
+
+Hint: do not use loops. Use if/else, and check out the functions any and all.
+
+##### Solution 1.2
+
+1. Convert time:
+
+Explaination: This functions takes time in the prescribed format, divides it into two components: minutes using modulus function
+and hours using integer division function. Then we convert minutes into hours by dividing it by base 60 and return
+the sum as result.
+
+###### Insert Response 
+
+```{r convert_time, message=TRUE}
+
+Convert_time = function(time){   # function takes time as numeric argument
+  min = time%%100
+  hours = time%/%100
+  
+  mins_in_hours = min/60
+  
+  return (hours + mins_in_hours)
+  
+}  
+
+Convert_time(730)
+
+```
+
+
+
+
+2. Extract positives in a loop
+
+Explaination: Interting all the positive numbers in vector 'res' using a simple for loop statement
+
+``` {r extractPositives, message = TRUE}
+
+res = c()
+for(x in v)
+{
+  if(x>=0)
+    res = c(res,x)
+}
+
+res
+
+```
+
+###### Insert Response 
+
+3. Extract positives
+
+Explaination: Using logical indexing (element>=0). We pass our logic as index
+``` {r extractPositives2, message = TRUE}
+
+v[v>=0]
+
+```
+
+
+4. Test for negatives
+
+###### Insert Response 
+
+```{r testNegatives, message=TRUE}
+
+if(any(v1[v1<0]))       #any returns either TRUE or FALSE as argument in if statement
+  {
+    print('Negative values present in v1')
+  }
+if(any(v2[v2<0]))
+  {
+    print('Negative values present in v2')
+  }
+if(any(v3[v3<0]))
+  {
+    print('Negative values present in v3')
+  }
+
+
+```
+
+
+
+
+#### Problem 2: Exploring the NYC Flights Data (35pt)
+
+In this problem set, we will use the data on all flights that departed NYC (i.e. JFK, LGA or EWR) in 2013. You can find this data in the `nycflights13` R package. 
+
+##### Setup: Problem 2
+
+You will need, at minimum, the following R packages.
+The data itself resides in package *nycflights13*. You may need to install both.
+
+```{r Setup, message=FALSE, warning=FALSE}
+# Load standard libraries
+library(tidyverse)
+library('nycflights13')
+```
+
+```{r}
+# Load the nycflights13 library which includes data on all
+# lights departing NYC
+data(flights)
+# Note the data itself is called flights, we will make it into a local df
+# for readability
+flights <- tbl_df(flights)
+# Look at the help file for information about the data
+# ?flights
+flights
+# summary(flights)
+```
+
+##### (1) Importing Data (5pt)
+
+Load the data and describe in a short paragraph how the data was collected and what each variable represents. 
+
+##### Solution 2.1
+
+###### Insert Response 
+
+The data represents flight information. It has over 336K rows and 19 columns. The data is well organized,
+with time broken down into separate columns, for example. The purpose of this data is to analyze time delay
+across flights and identify potential carriers which may have a higher time lag than others. 
+The first three columns represent date, the following three tell us the delay in departure. The 
+columns 7-9 tell about arrival delay while the 10th column gives information about the carrier.
+The columns 11 to 19 tell more about flight information regarding flight number, orgin and destination and 
+how long was the flight in the air.
+
+##### (2) Inspecting Data (5pt) 
+Perform a basic inspection of the data and discuss what you find. Inspections may involve asking the following questions (the list is not inclusive, you may well ask other questions):
+  
+  * How many distinct flights do we have in the dataset?
+  * How many missing values are there in each variable?
+  * Do you see any unreasonable values? *Hint: Check out min, max and range functions.*
+  
+##### Solution 2.2
+
+###### Insert Response 
+
+1. There are a total of 336,776 individual flight data.
+2. Let's check for missing values
+
+Source: https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/colSums
+
+```{r }
+
+#checking for missing values column wise
+missing_values = colSums(is.na(flights))
+
+#printing the results
+print(missing_values)
+
+```
+
+
+We can observe missing values as
+
+Missing Values:
+1. dep_time : 8255
+2. dep_delay : 8255
+3. arr_time : 8713
+4. arr_delay : 9430
+5. air_time : 9430
+6. tailnum : 2512
+
+##### (3) Formulating Questions (5pt) 
+
+Consider the NYC flights data. Formulate two motivating questions you want to explore using this data. Describe why these questions are interesting and how you might go about answering them.
+
+Example questions:
+  
+  * Which airport, JFK or LGA, experience more delays?
+  * What was the worst day to fly out?
+  * Are there seasonal patterns
+  
+##### Solution 2.3
+  
+###### Insert Response 
+
+Q1. Which carriers have a higher tendency for delays? 
+
+Answering this question can provide competitive advantage for carrier business and also help
+better manage airport traffic as ATC would be aware of possibility of delays from particular carriers. I would go on to chart bell curves for each of the carriers, compare mean and standard deviation, and see which ones have a higher standard deviation.
+
+Q2. Which Origin Airports report a delay more often than not?
+
+This could give insights into need for better flight traffic management need. I would segregate data
+by origin and then repeat the same exercize as in the first question.
+
+
+##### (4) Exploring Data (10pt) 
+
+For each of the questions you proposed in Problem 1c, perform an exploratory data analysis designed to address the question. Produce visualizations (graphics or tables) to answer your question.
+  * You need to explore the data from the point of view of the questions
+  * Depending on the question, you would need to provide precise definition. For example, what does "more delays" mean.
+  * At a minimum, you should produce two visualizations (graphics or tables) related to each question. Be sure to describe what the visuals show and how they speak to your question of interest. 
+
+##### Solution 2.4
+
+###### Insert Response 
+
+1. Let's go step by step
+
+Firstly, let's group data by carrier. Then calculate mean and SD of delays. Lastly, plot density plots for them.
+
+NOTE: Delay here means that the flight arrived later than its scheduled arrival time.
+
+SOURCE: https://stackoverflow.com/questions/28857653/removing-na-observations-with-dplyrfilter
+SOURCE: https://stackoverflow.com/questions/75687302/geom-density-ggplot2-one-density-plot-with-different-groups
+
+``` {r answeringQ1, message = TRUE}
+
+# Ler's explude NA's from the main data set
+flights_clean = flights %>% filter(!is.na(dep_delay))
+
+# Group by carrier and calculate mean and standard deviation of departure delays
+carrier_delay_df = flights_clean %>%
+  group_by(carrier) %>%
+  summarise(
+    mean_delay = mean(dep_delay),
+    sd_delay = sd(dep_delay),
+    n_flights = n()
+  ) %>%
+  arrange(desc(mean_delay))
+
+# Density plot for each carrier
+ggplot(flights_clean, aes(x = dep_delay, fill = carrier)) +
+  geom_density(alpha = 0.35) +
+  labs(title = "Departure Delays by Carrier",
+       x = "Departure Delay in minutes",
+       y = "Density") 
+
+#  Standard deviation of delays by carrier (bar plot)
+ggplot(carrier_delay_df, aes(x = reorder(carrier, -sd_delay), y = sd_delay, fill = carrier)) +
+  geom_bar(stat = "identity") +
+  labs(title = "SD of Departure Delays by Carrier",
+       x = "Carrier",
+       y = "SD in minutes") 
+
+
+```
+
+Explaination: Density plot depicts the distribution of departure delays for different carriers. The bigger the peak, the higher the frequency (mode) of delays. Fatter tails imply more probability of delays as variation is higher. 
+
+Whereas, the bar plot tells more information about which carrier has a higher variability. Higher bars means higher variation. 
+
+Observation: Clearly carriers 'HA', 'F9' and 'FL' are the top three carriers with highest variations. Also, using a bar plot to depict variations is a better way in this case, as the data got cluttered in the first visualization. 
+
+2. Again, group by origin airport, calculate mean and percentage of delayed flights, and then visualize.
+
+```{r exploreDataByOrigin, message = TRUE}
+
+#creating data frame
+origin_df = flights_clean %>% group_by(origin) %>%
+            summarise(
+              mean_delay = mean(dep_delay),
+              sd_delay = sd(dep_delay),
+              percentage_delayed_flights = mean(dep_delay > 0) * 100,
+              nos_flights = n()
+            ) %>%
+              arrange(desc(percentage_delayed_flights))
+            
+#First visualization - density plot for top 3 airports with maximum delays
+
+ggplot(flights_clean, aes(x = dep_delay, fill = origin)) +
+  geom_density(alpha = 0.35) +
+  labs(title = "Density Plot of Departure Delays by Origin Airport",
+       x = "Departure Delay in minutes",
+       y = "Density") 
+
+# Bar plot
+
+ggplot(origin_df, aes(x = reorder(origin, -sd_delay), y = sd_delay, fill = origin)) +
+  geom_bar(stat = "identity") +
+  labs(title = "SD of Departure Delays by Origin Airport",
+       x = "Origin Airport",
+       y = "Standard Deviation") 
+
+
+```
+Observations: The above bar chart represents the top three airports with maximum delays reported.
+
+##### (5) Challenge Your Results (10pt) 
+
+After completing the exploratory analyses from Problem 1d, do you have any concerns about your findings? How well defined was your original question? Do you have concerns regarding your answer? Is additional analysis/different data needed? Comment on any ethical and/or privacy concerns you have with your analysis. 
+
+##### Solution 2.5
+
+###### Insert Response 
+
+Yes, the plot has so many distinct carriers that the graphs are overlapping. It would have been better if the question was defined in a way where I had used filters to find the top 5 or top 10 such carriers first and then visually displayed them. 
+
+Further, keeping the two questions formulated, I did not find any privacy/ethical issues while analyzing them as the data used was very general. But it may be possible that such findings could negatively target some carriers for delays without actually understanding the real reasons behind the delay. For example, it may happen that delays of certain carriers are not because of their inefficiency but rather because of less priority given to them at Origin Airports. This needs further exploration. 
+
+
+#### Problem 3: Data Exploration (45pt)
+
+##### Setup
+
+
+We are working with Global Shark Attack file, a compilation of all reported shark attacks on humans. See [Sharkattackfile.net](https://sharkattackfile.net/index.htm) for more details and the original excel data sheet.
+
+Your task is to perform data cleaning and eploratory analysis, geared toward the following question: Which country, Australia or South Africa, is more dangerous in terms of shark attacks on people?
+
+We expect you to use the popular data manipulation and visualization packages like dplyr, tidyr and ggplot2 but this is not required. You can also just consult Lander’s book Ch 5.1 for data frames and Ch 7.1 for the basic plotting. Unfortunately Lander does not explain data frame indexing and subsetting, I’ll try to give an overview in R notes http://faculty.washington.edu/otoomet/machinelearning-R/r-programming-language-and-a-statistical-system.html#r-language-data-frames (but currently incomplete).
+
+
+##### 3.1 Basic data description (10pt)
+
+1. (4pt) Before even looking at the data, what do you think, were you be able to answer the question if you have access to a suitable dataset and respective analysis tools? What might the answer look like? Maybe you know what the answer is?
+Please answer this question before you do any data analysis and do not modify it later. You will have a chance to re-think your answer in the last question down below.
+Answer this question as markdown text using the appropriate markdown formatting tools!
+
+2. (2pt) Load the data. How many variables and how many cases (rows) does it contain?
+
+3. (4pt) Look at the variable names. Do you understand what do they mean? Which variables do you think we need to answer the question, stated above? Do you think we have sufficient amount of data? Anything else you notice here?
+
+##### Solution 3.1
+
+1. What do I think about the question: 
+
+###### Insert Response 
+
+*Shark attacks should be more common in Australia. That's what struck me initially. But it may have more to do with the number of people visiting shores and the season when sharks come to shores. Population and shark sea temperature may have more to do with answering the question. But prima facie, I will go with Australia*
+
+2. Load data
+
+###### Insert Response 
+
+```{r load_data, message=TRUE}
+library(readxl)
+shark_df = read_excel("C:/Users/DELL/Downloads/GSAF5.xls")
+shark_df
+
+```
+*Observation: There are 23 columns and 6970 rows in this data set.*
+
+
+3. Variable names
+
+###### Insert Response 
+
+SOURCE: https://www.statology.org/r-get-column-names/
+
+*Variable names are as follows:*
+
+```{r}
+col_names = names(shark_df)
+print(col_names)
+
+```
+
+
+*Observation:* We need columns like Location, Activity, Time, Country, Species to begin with in order to answer the question. Certain columns like Case Number may not hold much value for this analysis. Also,  all columns are character strings.
+
+
+##### 3.2 Explore data (35pt)
+
+The next task is to explore the data a bit more closely.
+
+1. (4pt) How many different countries are listed here in data?    
+Hint: check out functions unique and table. You may also want to sort the values.
+
+2. (6pt) Browse the country names. Comment on what do you see. Do all the names make sense?  
+Note: please do not print here all the 200-something different names. But you are welcome to present a few to illustrate your point.
+
+3. (5pt) Next, let’s look at the year of the attack (variable Year). What is it’s data type? Does it correspond to what you expect?  
+Hint: check out the function class
+
+4. (5pt) How many missing values for Year do we have in data? What does this suggest about the observations and data quality?  
+Hint: you may use a construct like sum(is.na(data$Year)), or summary function. The first one answers this question directly, the second one provides additional insight.
+
+5. (5pt) Find the minimum, maximum, and median value of Year.  
+Hint: you have to remove missings, all related functions like min, median, range have the optional. 
+argument na.rm.
+Hint2: median should be 1982.
+
+6. (5pt) The minimum value “0” looks like a different code for missing data... So let’s take a closer look. Browser the value of Date for cases where Year = 0. Comment what do you see. How many such cases do we have? what does this tell about the scope of this dataset?  
+Note: as above, do not just print all these cases. But you are welcome to illustrate your point with a few examples.
+
+7. (5pt) One of the oldest dates there is “Ca. 725 B.C.”. Explain what happened and what is the source of information. What does this suggest about the used data sources?  
+Hint: you may want to extract just that line of data by using Date == “Ca. 725 B.C.”.
+
+
+##### Solution 3.2
+
+* Answer to Question 1
+
+###### Insert Response 
+
+
+```{r Q1, message=TRUE}
+
+unique_countries_list = unique(shark_df$Country)
+
+print(length(unique_countries_list))
+
+#There are a total of 227 differnt entries for the field Country
+
+```
+
+
+* Answer to Question 2
+
+###### Insert Response 
+
+```{r Q2, message=TRUE}
+
+#Mentioning the last 10 country names in the data frame
+tail(unique(shark_df$Country),10)
+
+```
+
+*Observation:* Clearly, some of the names do not make sense. There are some entries that have a question mark, where as some mention a sea. The data here needs to be cleaned. 
+
+* Answer to Question 3
+
+###### Insert Response 
+
+```{r Q3, message=TRUE}
+
+class(shark_df$Year)
+
+```
+*Observation:* The data type here is 'character' and not date. This clearly doesn't make sense. In fact, all the columns are character type. We will have to type cast many of these columns into more reliable data types for analytics. 
+
+* Answer to Question 4
+
+###### Insert Response 
+
+```{r Q4, message=TRUE}
+
+#Checking missing values for year
+
+print(sum(is.na(shark_df$Year)))
+
+
+```
+
+Observation: There are only 2 missing values here. This means that at least, we have good quality data for Time stamps. 
+
+
+* Answer to Question 5
+
+###### Insert Response 
+
+```{r Q5, message=TRUE}
+
+shark_df$Year = as.numeric(shark_df$Year)
+
+min_year = min(shark_df$Year, na.rm = TRUE)
+max_year = max(shark_df$Year, na.rm = TRUE)
+median_year = median(shark_df$Year, na.rm = TRUE)
+
+cat("Minimum Year:", min_year, "\n")
+cat("Max Year:", max_year, "\n")
+cat("Median Year:", median_year, "\n")
+
+```
+
+Observation: Firstly we converted all character data points into numeric. All of these functions perform their respective tasks in calculating the min , max and median while ignoring the missing values. Also, the min year is 0 which suggests that data is not clean. We can use a box plot and remove outliers from this dataset. 
+
+* Answer to Question 6
+
+###### Insert Response 
+
+```{r Q6, message=TRUE}
+
+year_is_zero = shark_df %>% filter(Year == 0) %>% select(Date)
+print(tail(year_is_zero))
+year_is_zero
+
+```
+
+Observation: There are 129 such rows. The values in date column suggest that this dataset encapsulates values that do not refer to a specific time but instead a range. The '0' year refers to this range actually as there is no specific year to earmark. 
+
+* Answer to Question 7
+
+###### Insert Response 
+
+```{r Q7, message=TRUE}
+
+print(shark_df %>% filter(Date == 'Ca. 725 B.C.'))
+
+```
+Observation: There was a sea disaster. Source being "V.M. Coppleson (1958), p.262, et al." This suggests that there are references to shark attack going back to the ancient times. Also, it may be inferred that shark attacks have been a point of interest since a very long time back in history. 

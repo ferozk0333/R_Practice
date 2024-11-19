@@ -1,0 +1,430 @@
+---
+title: 'IMT 573: Problem Set 6 - Statistical Theory II'
+author: "Feroz Khan"
+date: 'Due: Tuesday, November 12, 2024 by 10:00PM PT'
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document:
+    df_print: paged
+---
+
+<!-- This syntax can be used to add comments that are ignored during knitting process. -->
+
+##### Collaborators: <!-- BE SURE TO LIST ALL COLLABORATORS HERE! -->
+
+##### Instructions:
+
+Before beginning this assignment, please ensure you have access to R and RStudio; this can be on your own personal computer or on the IMT 573 R Studio Server. 
+
+1. Download the `problem_set6.Rmd` file from Canvas or save a copy to your local directory on RStudio Server. Open `problem_set6.Rmd` in RStudio and supply your solutions to the assignment by editing `problem_set6.Rmd`. 
+
+2. Replace the "Insert Your Name Here" text in the `author:` field with your own full name. Any collaborators must be listed on the top of your assignment. 
+
+3. Be sure to include well-documented (e.g. commented) code chucks, figures, and clearly written text chunk explanations as necessary. Any figures should be clearly labeled and appropriately referenced within the text. Be sure that each visualization adds value to your written explanation; avoid redundancy -- you do not need four different visualizations of the same pattern.
+
+4.  Collaboration on problem sets is fun and useful, and we encourage it, but each student must turn in an individual write-up in their own words as well as code/work that is their own.  Regardless of whether you work with others, what you turn in must be your own work; this includes code and interpretation of results. The names of all collaborators must be listed on each assignment. Do not copy-and-paste from other students' responses or code.
+
+5. All materials and resources that you use (with the exception of lecture slides) must be appropriately referenced within your assignment.  
+
+6. Remember partial credit will be awarded for each question for which a serious attempt at finding an answer has been shown. Students are \emph{strongly} encouraged to attempt each question and to document their reasoning process even if they cannot find the correct answer. If you would like to include R code to show this process, but it does not run without errors, you can do so with the `eval=FALSE` option. (Note: I am also using the `include=FALSE` option here to not include this code in the PDF, but you need to remove this or change it to `TRUE` if you want to include the code chunk.)
+
+```{r example chunk with a bug, eval=FALSE, include=FALSE}
+a + b # these object dont' exist 
+# if you run this on its own it with give an error
+```
+
+7. When you have completed the assignment and have **checked** that your code both runs in the Console and knits correctly when you click `Knit PDF`, rename the knitted PDF file to `ps5_YourLastName_YourFirstName.pdf`, and submit the PDF file on Canvas.
+
+##### Setup: 
+
+In this problem set you will need, at minimum, the following R packages.
+
+```{r Setup, message=FALSE}
+# Load standard libraries
+library(tidyverse)
+library(MASS) # Modern applied statistics functions
+library(ggplot2)
+```
+
+
+# Introduction: Are Sons Taller than Fathers?
+
+This dataset uses fathers’ and sons’ height data from 19th century Britain. It was used by Galton (1886) when discussion “regression to mediocrity”, or regression to mean as we would call it now. The dataset contains two variables: fheight and sheight for fathers’ and sons’ height, respectively (in cm).
+
+# 1. Descriptive Analysis (16pt)
+
+a) (3pt) load the fatherson.csv data. Do the basic descriptive work on it: what are the number of observations? Are there any missing data?
+b) (5pt) Describe fathers and sons: compute the mean, median, standard deviation, and range of their heights. According to these computations, who are taller: fathers or sons?
+c) (5pt) Let’s add a graphical comparison. Create density plots of both heights on the same figure. Comment on the density plots. Which distribution do these resemble? Do the graphical representation agree with the conclusion that you drew from the computations in the previous question (question 1(b))?
+Hint: you can do density plots with stat_density when using ggplot.
+d) (3pt) Finally, for further reference, compute how much taller are sons on average.
+
+### Solution 1
+
+
+\textbf{\textcolor{red}{Solution (a):}}
+
+###### Insert Response
+
+```{r}
+
+height_df = read.delim("fatherson.csv")
+
+print(paste("The number of rows are:", nrow(height_df)))
+summary(height_df)
+
+print(paste("Total missing values:"))
+sum(is.na(height_df))
+
+```
+Observation: There are 1078 rows and no missing values.
+
+\textbf{\textcolor{red}{Solution (b):}}
+
+###### Insert Response
+
+```{r}
+#Father's check
+mean_f = mean(height_df$fheight, na.rm = TRUE)
+median_f = median(height_df$fheight, na.rm = TRUE)
+sd_f = sd(height_df$fheight,na.rm = TRUE)
+range_f = range(height_df$fheight, na.rm = TRUE)
+
+#Son's check
+mean_s = mean(height_df$sheight,na.rm = TRUE)
+median_s = median(height_df$sheight, na.rm = TRUE)
+sd_s = sd(height_df$sheight, na.rm = TRUE)
+range_s = range(height_df$sheight, na.rm = TRUE)
+
+#printing results
+print(paste("Father's mean:", mean_f))
+print(paste("Father's median",median_f))
+print(paste("Father's SD",sd_f))
+print(paste("Father's range", range_f))
+
+print(paste("Son's mean:", mean_s))
+print(paste("Son's median:",median_s))
+print(paste("Son's SD:",sd_s))
+print(paste("Son's range", range_s))
+
+
+```
+Observation: Son's mean is higher with a very slightly higher SD. Sons tend to be taller than fathers based on the given data set.
+
+\textbf{\textcolor{red}{Solution (c):}}
+
+###### Insert Response
+
+```{r}
+
+ggplot(height_df) +
+  stat_density(aes(x = fheight, color = "Fathers"), geom = "line", size = 1) +
+  stat_density(aes(x = sheight, color = "Sons"), geom = "line", size = 1) +
+  labs(title = "Density Plot",
+       x = "Height (cm)", y = "Density") +
+  scale_color_manual(values = c("Fathers" = "blue", "Sons" = "red")) +
+  theme_minimal() +
+  theme(legend.title = element_blank())
+
+
+```
+Observation:The shapes resemble that of a bell curve and are mostly symmetric. Sons' curve is shifted right compared to fathers', suggesting that sons are on average taller than fathers.
+
+\textbf{\textcolor{red}{Solution (d):}}
+
+###### Insert Response
+
+```{r}
+
+print(paste("Sons are taller than fathers on average by:", round(mean_s - mean_f,2),"cm"))
+
+```
+
+
+# 2. Simulations (36pt)
+
+Let’s test the above result as to who is taller through simulations. 
+We take H0: fathers and sons are of the same height, in average, and see if we can reject this hypothesis based on data.
+
+You will proceed as follows: create two samples of random normals, similar to the data above, using the overall mean and standard deviation in the data. Call one of these samples “sample fathers” and the other “sample sons”. What is the difference in their means? Is this close to the number you saw in the data (your response in 1(d))? It is probably not. But maybe this was just an unhappy experiment. So now let’s repeat this exercise many times and see how big or how small differences you typically see between “sample fathers” and “sample sons”. The point distributions for each of these steps are listed below.
+
+a) (5pt) compute the overall mean and standard deviation of pooled fathers’ and sons’ heights. (That is, combine all heights, and compute just one mean and one standard deviation for this combined 2156 heights.)
+b) (5pt) now create two sets of random normals, both with the same mean and the same standard deviation that you just computed above. Call one of these “sample fathers” and the others “sample sons”. What is the sample father-sample son mean difference? Compare this result with what you found in the previous problem (1(d).
+Hint: For example, to compute mean difference for an hypothetic sample of mean 100 and standard deviation 10, and sample size 5, here is some sample code:
+
+```{r}
+fakefathers <- rnorm(5, mean=100, sd=10)
+print(fakefathers)
+
+fakesons <- rnorm(5, mean=100, sd=10)
+print(fakesons)
+
+diff <- mean(fakefathers) - mean(fakesons)
+print(diff)
+
+```
+
+c) (6pt) Now repeat the previous question a large number of times N (1000 or more). Each time store the difference, so you end up with N different values for the difference.
+d) (2pt) What is the mean of the differences? Explain why do you get what you get. Hint: it should be close to 0.
+e) (2pt) What is the standard deviation of the differences?
+f) (5pt) What is the largest difference you got (in absolute value)? How does it compare to the actual sons/fathers difference you obtained in 1(d)?
+g) (5pt) find 95% confidence intervals for the differences you computed. Does the actual difference fall inside or outside of the CI?
+Hint: you can use the R function quantile for this.
+h) (6pt) What is your conclusion? Can you confidently say that sons are taller than fathers?
+Why?
+Hint: Check confidence interval
+
+### Solution 2
+
+
+\textbf{\textcolor{red}{Solution (a):}}
+
+###### Insert Response
+
+```{r}
+#let's first combine both the heihts
+
+combined_heights = c(height_df$fheight, height_df$sheight)
+
+mean_combined = mean(combined_heights, na.rm = TRUE)
+sd_combined= sd(combined_heights, na.rm = TRUE)
+
+print(paste("Mean:", round(mean_combined, 2)))
+print(paste("Standard Deviation:", round(sd_combined, 2)))
+
+
+```
+Observation: The combined data has a mean of around 173 cm and a SD of 7.17
+
+\textbf{\textcolor{red}{Solution (b):}}
+
+###### Insert Response
+
+```{r}
+
+sample_size = length(height_df$fheight)
+
+#generate random samples 
+fakefathers = rnorm(sample_size, mean = mean_combined, sd = sd_combined)
+fakesons = rnorm(sample_size, mean = mean_combined, sd = sd_combined)
+
+#Calculate mean difference
+mean_diff = mean(fakefathers) - mean(fakesons)
+print(paste("Sample Father-Sample Son Mean Difference:", round(mean_diff, 3),"cm"))
+
+```
+
+
+\textbf{\textcolor{red}{Solution (c):}}
+
+###### Insert Response
+
+We will run a loop thousand times and repeat the above exercize and store the results in a vector.
+
+```{r}
+
+
+N = 1000   # number of times the experiment shall be run
+
+#Create a vector 
+mean_diff = numeric(N)
+
+for (i in 1 : N) {
+  #generate random samples 
+  fakefathers = rnorm(sample_size, mean = mean_combined, sd = sd_combined)
+  fakesons = rnorm(sample_size, mean = mean_combined, sd = sd_combined)
+  
+  #storing the differences in a vector
+  mean_diff[i] = mean(fakefathers) - mean(fakesons)
+}
+
+summary(mean_diff)
+
+
+```
+Observation: We now have a distribution of point differences between mean heights of fathers and sons.
+
+\textbf{\textcolor{red}{Solution (d):}}
+
+###### Insert Response
+
+```{r}
+print(paste("The mean of the differences is:", round(mean(mean_diff),5)))
+
+```
+Observation: Yes, it is close to zero. This happens because there are some negative means and some positive means that are spread out in the distribution. However, their mean is the sum total over number of observations and they cancel each other out. If we increase the sample size, this mean will further tend to zero.
+
+\textbf{\textcolor{red}{Solution (e):}}
+
+###### Insert Response
+
+```{r}
+
+print(paste("Standard deviation is:", round(sd(mean_diff),3),"cm"))
+
+```
+
+
+\textbf{\textcolor{red}{Solution (f):}}
+
+###### Insert Response
+
+```{r}
+#findign  the largest absolute difference
+max_diff = max(abs(mean_diff))
+print(paste("Largest absolute difference:", round(max_diff, 2)))
+
+
+```
+Observation: The largest absolute difference is smaller than the observed mean 2.53 of the given sample. It suggests that the actual difference is not okay that fathers and sons have the same average height. Provides evidence against Null hypothesis. 
+
+\textbf{\textcolor{red}{Solution (g):}}
+
+###### Insert Response
+
+```{r}
+
+ci=quantile(mean_diff, probs = c(0.025, 0.975))
+print(paste("95% Confidence Interval:", round(ci[1], 2), "to", round(ci[2], 2)))
+
+```
+
+\textbf{\textcolor{red}{Solution (h):}}
+
+###### Insert Response
+
+Observation: We can now check if our Null Hypothesis holds true or not. The observed mean (2.53 cm) does not fall within the lower and upper bounds of the CI. In fact, it is towards the far right of the curve towards the right tail (outside the CI boundary). This suggests that we can comfortably reject the null hypothesis and conclude that that sons are indeed taller on average than fathers.
+
+# 3. Canned t-test software (10pt)
+
+Let’s use the t.test from the stats package to test H0.
+
+a) (8pt) Use t.test function to compare fathers and sons. Make sure to follow the entire hypothesis framework to list out all the 5 steps.
+b) (2pt) Do both simulation and t-test methods agree whether sons are taller than fathers?
+
+### Solution 3
+
+
+\textbf{\textcolor{red}{Solution (a):}}
+
+###### Insert Response
+
+#### 1. Define hypothesis
+Null Hypothesis: Fathers and sons have the same average height
+Alternative Hypothesis: Fathers and sons do not have the same average height
+
+#### 2. Set level of significance, alpha, as 0.05
+
+#### 3. Perform t-test
+
+```{r}
+#perform a t-test
+t_test = t.test(height_df$fheight, height_df$sheight, alternative = "two.sided")
+print(t_test)
+
+```
+#### 4. Make a decision
+As p-value < 0.05, we reject the null hypothesis
+
+#### 5. Conclusion
+There is a statistically significant difference in the average heights of fathers and sons
+
+\textbf{\textcolor{red}{Solution (b):}}
+
+###### Insert Response
+
+Observation: Yes, both the tests give the same result - reject null hypothesis. Conclusion was that indeed sons are on average taller than fathers based on the given data set. It was bound to happen as t-test and z-test are similar in nature expect that when we don't know about the population parameters, we use t-test that provides us with a larger confidence interval for the same alpha value.
+
+
+# 4. Housing Values in Suburbs of Boston (30pt)
+
+In this problem we will use the Boston dataset that is available in the \texttt{MASS} package. This dataset contains information about median house value for 506 neighborhoods in Boston, MA. Load this data and use it to answer the following questions.
+
+
+a) (5pt) Describe the data and variables that are part of the \texttt{Boston} dataset. Tidy data as necessary.
+b) (5pt) Consider this data in context, what is the response variable of interest?
+c) (20pt) For at least two of the predictors (your choice), fit a simple linear regression model to predict the response. What was your rationale behind choosing the predictors? In which of the models is there a statistically significant association between the predictor and the response? Describe your results.
+
+
+### Solution 4
+
+\textbf{\textcolor{red}{Solution (a):}}
+
+###### Insert Response
+
+```{r}
+#load data set
+data("Boston")
+```
+
+```{r}
+#structure of dataset
+str(Boston)
+head(Boston)
+```
+Observation: Dataset contains 506 rows (representing neighborhoods) and 14 variables.
+
+#### Cleaning dataset
+
+```{r Cleanup}
+#dplyr for manipulation
+library(dplyr)
+
+#rename columns
+Boston = Boston %>%
+  rename(
+    crime_rate = crim,
+    residential_land = zn,
+    non_retail_business = indus,
+    charles_river = chas,
+    nitrogen_oxides = nox,
+    rooms = rm,
+    old_units = age,
+    employment_dist = dis,
+    highway_access = rad,
+    property_tax = tax,
+    pupil_teacher_ratio = ptratio,
+    black_population = black,
+    lower_status = lstat,
+    median_value = medv
+  ) %>%
+  mutate(charles_river = factor(charles_river, levels = c(0, 1), labels = c("No", "Yes")))
+
+# No missing values
+sum(is.na(Boston))
+
+```
+
+Observation: Clean up done successfully.
+
+\textbf{\textcolor{red}{Solution (b):}}
+
+###### Insert Response
+
+Observation: The variable of interest is the median house value. It can act as the dependent variable for this dataset whose value is determined by a set of other independent variables. 
+
+\textbf{\textcolor{red}{Solution (c):}}
+
+###### Insert Response
+
+Two variables that I chose: rooms and lower_status. More number of rooms generally indicate more desirable and larger homes. This likely has a direct influence on the median house price. If more people of lower_status live in a neighbourhood, people are likely to go down (negative correlation).
+
+Let's fit the models
+```{r}
+
+model_rooms = lm(median_value ~ rooms, data = Boston)
+summary(model_rooms)
+
+
+model_lstat = lm(median_value ~ lower_status, data = Boston)
+summary(model_lstat)
+
+
+```
+Observation: Analyze p-values for both model results
+
+Both models have p-value as <2.2e-16 which is a very small number, tending towards zero. This means that there is a strong association between the independent variable and the dependent variable (median house price). This is not by chance, hence. Also, it makes logical sense that having more number of rooms and living in a rich locality with higher class of people will likely increase house prices.
+
+
+

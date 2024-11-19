@@ -1,0 +1,730 @@
+---
+title: "IMT 573: Problem Set 2 - Working with Data Part 1"
+author: "Feroz Khan"
+date: 'Due: Tuesday, October 15, 2024 by 10:00AM PT'
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document:
+    df_print: paged
+---
+
+<!-- This syntax can be used to add comments that are ignored during knitting process. -->
+
+##### Collaborators: <!-- BE SURE TO LIST ALL COLLABORATORS HERE! -->
+
+##### Instructions:
+
+Before beginning this assignment, please ensure you have access to R and RStudio. 
+
+1. Download the `problem_set2.Rmd` file from Canvas. Open `problem_set2.Rmd` in RStudio and supply your solutions to the assignment by editing `problem_set1.Rmd`. 
+
+2. Replace the "Insert Your Name Here" text in the `author:` field with your own full name. Any collaborators must be listed on the top of your assignment. Collaboration shouldn't be confused with group project work (where each person does a part of the project). Working on problem sets should be your individual contribution. More on that in point 8.
+
+3. Be sure to include well-documented (e.g. commented) code chucks, figures, and clearly written text chunk explanations as necessary. Any figures should be clearly labeled and appropriately referenced within the text. Be sure that each visualization adds value to your written explanation; avoid redundancy -- you do not need four different visualizations of the same pattern.
+
+4. All materials and resources that you use (with the exception of lecture slides) must be appropriately referenced within your assignment. In particular, note that Stack Overflow is licenses as Creative Commons (CC-BY-SA). This means you have to attribute any code you refer from SO.
+
+5. Partial credit will be awarded for each question for which a serious attempt at finding an answer has been shown. But please **DO NOT** submit pages and pages of hard-to-read code and attempts that is impossible to grade. That is, avoid redundancy. Remember that one of the key goals of a data scientist is to produce coherent reports that others can easily follow.  Students are \emph{strongly} encouraged to attempt each question and to document their reasoning process even if they cannot find the correct answer. If you would like to include R code to show this process, but it does not run without errors you can do so with the `eval=FALSE` option as follows:
+
+```{r example chunk with a bug, eval=FALSE}
+a + b # these object dont' exist 
+# if you run this on its own it with give an error
+```
+
+6. When you have completed the assignment and have **checked** that your code both runs in the Console and knits correctly when you click `Knit PDF`, rename the knitted PDF file to `ps1_ourLastName_YourFirstName.pdf`, and submit the PDF file on Canvas.
+
+7.  Collaboration is often fun and useful, but each student must turn in an individual write-up in their own words as well as code/work that is their own.  Regardless of whether you work with others, what you turn in must be your own work; this includes code and interpretation of results. The names of all collaborators must be listed on each assignment. Do not copy-and-paste from other students' responses or code.
+
+```{r setup, include=FALSE}
+# load required libraries
+library(dplyr)
+```
+
+# Instructions
+
+
+
+# 1. Exploring COVID-19 Data
+
+This dataset asks you to assemble and manipulate a COVID-19 dataset, and use it for a few illustrative figures. It replicates many real-worlds problems, including mismatching variable coding and differing variable names. We expect you to use dplyr-framework but you are welcome to use something else. Many questions also include hints and suggestions, these are designed to help you in case you do not have a good idea about how to proceed. But if you know better then you are welcome to follow other routes.
+
+
+
+
+1. Remember that just numerical answer is not enough. Always comment and explain your results.
+   You can add R code inline as:
+
+   In this data we have `r nrow(data)` flights...
+
+   (remember: these are backticks!)
+
+2. Be sure to include well-documented (e.g. commented) code chunks, figures, tables, and clearly
+   written text explanations as necessary. All figures should be clearly labeled and appropriately
+   referenced within the text.
+
+3. Be sure that each visualization adds value to your written explanation; avoid redundancy – you do
+   not need four different visualizations of the same pattern. Don’t output irrelevant, or too much of
+   the relevant information. A few figures is helpful. A few thousand figures is just noise.
+
+Most of the data is downloaded from John Hopkins university COVID-19 data project. The main variables in the monthly files are
+
+**FIPS** US only. Federal Information Processing Standards code that uniquely identifies counties within
+the USA.
+
+**Admin2** County name. US only.
+
+**Province_State** Province, state or dependency name.
+
+**Country_Region** Country, region or sovereignty name. The names of locations included on the Website
+correspond with the official designations used by the U.S. Department of State. Confirmed Counts include confirmed and probable (where reported).
+
+**Deaths** Counts include confirmed and probable (where reported).
+
+This data is supplemented with information from the US Dpartment of State, and Wikipedia. The data is on canvas: [here](https://canvas.uw.edu/courses/1749037/files/folder/PS%20-%20Data%20-%20Aut%2024?preview=124786872).
+
+
+## Load a single month of African data (25pt)
+
+1. (3pt) Load the list of African countries countries-africa.csv. How many African countries are listed here?
+
+2. (4pt) Collect all the names of covid data files covid-global... into a character vector. How many files are there?
+
+    Hint: check out the function list.files, and its argument pattern.
+
+The next task is to extact only data for African countries from the COVID files. Let’s start simple and pick just a single file, e.g. the most recent one for October 2021. When you have managed with this code you’ll loop over all the files afterwards. (But expect issues.)
+
+3. (2pt) Load the COVID data file for October 2021. Ensure you know the variables there.
+
+But the global data file contains not just African countries, so you have just to select the African ones from the list. Unfortunately not all the names match.
+
+4. (3pt) How many African countries in the African Country list do you find in the covid data? Do not attempt to adjust the names for now.
+    Hint: you can use the %in% operator to check which elements are in the list.
+
+5. (4pt) Which African countries are not matched in the COVID data? Again, do not adjust the names
+for now.
+    Hint: if you did it correctly, then you find 9 entities (some of those are more like territories).
+
+As you can see, not all African countries/territories that are listed under the same name. We do not care too much about Mayotte and a few other islands, but we care about Congo (both DR and R), and Ivory coast.
+
+6. (3pt) Why should we care more about these three countries and less about other entities?
+
+7. (3pt) Next, find how are the names of these three countries (Two Congos and Ivory Coast) written in the covid data.
+
+You may also consult US Dept of State list of countries, this is the name form COVID data is using.
+
+8. (3pt) Amend the list of African countries in a way that you can extract all the necessary African
+countries (you may leave out the islands/territories) from COVID data. Demonstrate that it works.
+
+    If you did it correctly, you should only have left with “Réunion (France)”, “Western Sahara”, “Cape Verde”, “Mayotte (France)”, “São Tomé and Príncipe”, and “Saint Helena, Ascension and Tristan da Cunha (UK)” that are not included.
+
+
+##### Solution 1
+
+1. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response 
+
+``` {r load_data}
+
+africa_df = read.delim("countries-africa.csv")
+
+africa_df$country %>% n_distinct()
+
+```
+
+*Observation: There are a total of 58 African countries*
+
+2. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response 
+
+Here, I will first use list.files to set the path and the particular pattern in file names that I want to extract. Once I have that assigned to a character vector, I can simply print the length of that vector.
+
+``` {r grouping files}
+
+files = list.files(path = "C:/Users/DELL/OneDrive/Desktop/COVID", pattern = "covid-global", full.names = TRUE)
+
+# Count the number of files
+count_of_files = length(files)
+
+print(count_of_files)
+
+```
+
+*Observation: There are 21 files with 'covid-global' as part of their name.*
+
+3. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response 
+
+Approach: We can use grep function here to extract file name and then read it.
+
+``` {r load_october_data}
+
+covid_oct_df = read.delim(files[grep("10-01-2021", files)])
+head(covid_oct_df)
+
+
+```
+*Observation: This data frame contains 14 columns and 4000+ rows. It tells about the location of the country, the statistics around deaths and reported cases, and some key ratios.*
+
+4. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response 
+
+Source: https://www.r-bloggers.com/2022/07/how-to-use-in-operator-in-r/
+
+Approach: Using in operator to match the country names in October dataset with those in the Africa data set. The sum of all such countries is the result.
+
+``` {r african_countries}
+
+africa_country_count = covid_oct_df$Country_Region %in%  africa_df$country
+sum(africa_country_count)
+
+```
+
+
+*Observation: There are 49 matches*
+
+
+5. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response 
+
+Approach: Firstly, we use negation of %in% operator. Here sequence of variables matter. It checks which African countries are not in the october report and returns them as TRUE or FALSE. Then we send the boolean values as inputs to the africa_df to compare for positives. Then we return the count of all positive values.
+
+``` {r not matched african_countries}
+
+non_africa_df = africa_df$country[(!africa_df$country %in% covid_oct_df$Country_Region)]
+
+non_africa_df
+length(africa_df$country[(!africa_df$country %in% covid_oct_df$Country_Region)])
+
+
+```
+
+*Observation: There are 9 African countries whose names are not in October 2021 report.*
+
+6. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response 
+
+``` {r Q6}
+
+africa_df %>%
+  filter(country %in% non_africa_df) 
+
+
+```
+*Observation: The population of the mentioned three countries is significantly higher compared to other six countries*
+
+7. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response 
+
+Source: https://stackoverflow.com/questions/71588215/how-can-i-use-str-detect-in-combination-with-the-operator
+``` {r Q7}
+
+filtered_countries = covid_oct_df[grep("Congo|Ivory", covid_oct_df$Country_Region, ignore.case = TRUE),]
+filtered_countries$Country_Region
+
+```
+
+*Observations: There are two congos -  "Congo (Brazzaville)" and "Congo (Kinshasa)."  No Ivory Coast found.*
+
+8. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response 
+
+Approach: We can use mutate function to update country names and retain all other rows as they are.
+
+``` {r Q8}
+
+africa_df = africa_df %>%
+  mutate(country = case_when(
+    country == "Republic of the Congo" ~ "Congo (Brazzaville)",
+    country == "Democratic Republic of the Congo" ~ "Congo (Kinshasa)",
+    TRUE ~ country  # Retain other country names unchanged
+  ))
+
+
+
+```
+
+
+Let's test it by using code chunk from Q5
+```{r Q8_check}
+
+non_africa_df = africa_df$country[(!africa_df$country %in% covid_oct_df$Country_Region)]
+
+non_africa_df
+length(africa_df$country[(!africa_df$country %in% covid_oct_df$Country_Region)])
+
+
+```
+
+*Observation: We can observe that now only 7 countries are not in the list instead of earlier 9.*
+
+# 2. Exploring SharksAttack Data
+
+
+We are working with Global Shark Attack file (which was also explored in Problem Set 1), a compilation of all reported shark attacks on humans. See [Sharkattackfile.net](https://sharkattackfile.net/index.htm) for more details and the original excel data sheet.
+
+Your task is to perform data cleaning and exploratory analysis, geared toward the following question: Which country, Australia or South Africa, is more dangerous in terms of shark attacks on people?
+
+
+```{r load-data}
+gsa <- read.delim("Shark_Data_Set.csv") 
+dim(gsa)
+
+
+```
+
+
+
+##### 2.1 Clean data (20 pts) 
+
+Now it is time to do some data cleaning before we can go and try to answer the question.
+
+1. (5pt) Now let’s look at whether the attack was fatal (the variable Fatal Y/N. As the first step, rename this variable to something more suitable, e.g. fatal. We ask you also to only keep variables you need below and drop all the others. (You may want to return to this question later and add/remove additional variables.) You may also rename other variables if you wish.
+Hint: dplyr’s select function allows you to keep/drop/rename variables.
+
+2. (5pt) Lets focus on reasonable recent time span only. Only keep the reasonably recent cases based on the year variable. Explain your reasoning when selecting the time span. How many cases are you left with?
+Below we work on this subset only.
+Now it is time to analyze if the attack was fatal.
+
+3. (5pt) What kind of different values do you see in the fatal variable? Comment the values you see. Do you have an idea why do you see some of these figures?
+
+4. (5pt) Now let’s convert the fatal column into a logical variable: TRUE if the attack was fatal and FALSE if not. Convert the cases where you are unsure into missings. Explain your for decisions you make here.
+Hint: “It is too much work to handle cases like ...” is a perfectly valid reason. 
+Hint 2: check out dplyr’s mutate function, and vectorized if/else ifelse.
+
+##### Solution 2.1
+
+1. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+Approach: Let's first analyze the dataframe and remove irrelavant columns like Case.Number by extracting relevant ones into a new dataframe. Also, let's rename some columns into more meaningful variables. We can use select command.
+```{r Sol1}
+
+shark_data = gsa %>%
+  select(
+    country = Country,   # Renaming 'Country' to 'country'
+    fatal = `Fatal..Y.N.`,  # Renaming 'Fatal (Y/N)' to 'fatal'
+    activity = Activity,  # Keeping 'Activity' to know what people were doing
+    year = Year,          # Keeping 'Year' to analyze by time
+    sex = Sex,            # Keeping 'Sex' to analyze gender distribution
+    date = Date,           # Keeping 'Date' to understand attack dates
+    type = Type,
+    injury = Injury
+  )
+head(shark_data)
+
+```
+*Observation: Now, we have a much cleaner dataframe with 8 columns with proper names* 
+
+2. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+Approach: 
+
+Following are the steps:
+
+a. Filter cases based on year.
+b. Explain the reasoning.
+c. Display the cases post filtering.
+
+Reasonable recent time span. Let's take data from 1990 onwards to account for the effects of climate change.
+
+
+```{r Sol2}
+
+summary(shark_data$year)
+
+# Filter cases 
+shark_data_recent = shark_data %>%
+  filter(year >= 1990)
+
+dim(shark_data)
+dim(shark_data_recent)
+
+```
+
+*Observations: The dataset is now down to 3026 rows from the earlier 25k rows.*
+
+3. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+```{r Sol3}
+
+unique(shark_data_recent$fatal)
+
+```
+
+*Observation: Contrary to initial expectation, there are more than 2 output values. We need to fix them. These are unexpected values, indicating that the data is inconsistent and have some ambiguous categories. This may have happened because of data collation errors where data was merged from different sources with different conventions or maybe typing errors.*
+
+4. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+SOURCE: https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/ifelse
+
+```{r Sol4}
+
+shark_data_recent = shark_data_recent %>%
+  mutate(fatal = ifelse(fatal == "Y", TRUE,
+                        ifelse(fatal == "N",FALSE,NA)))
+
+
+
+```
+
+
+
+```{r}
+unique(shark_data_recent$fatal)
+
+```
+##### 2.2 Austalia or South Africa? (12pt)
+
+Finally, let’s try to answer the question about which country is more dangerous.
+
+1. (4pt) Filter the data to only contain cases from these two countries. How many cases do you have from each country? Which percentage of those is fatal?
+Hint: check out functions table and prop.table.
+
+2. (4pt) Now try to answer the question: which country is more dangerous? Are you able to answer it?
+What do you think, what can this analysis and your answer be used for? Explain your reasoning.
+
+3. (4pt) Finally, returning to your analysis and the original data (not the one you have cleaned), do you see any ethical issues here? Can your results be misused? Can this data used in a harmful way?
+
+
+##### Solution 2.2
+
+1. \textbf{\textcolor{red}{Solution:}} 
+
+
+###### Insert Response
+
+SOURCE: https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/table
+
+Approach: Here, I am going to use a filter to segregate data and then check for each country separately. I have used prop.table command to get proportion or ratio of cases in each cell and then multiplied by 100 to get overall percentage.
+
+```{r Ans1}
+
+aus_sa_data = shark_data_recent %>%
+  filter(country %in% c("AUSTRALIA","SOUTH AFRICA"))
+
+#Let's count the cases from each country
+table(aus_sa_data$country)
+
+
+#Let;s check the fatality rate
+fatal_count_aus_sa = table(aus_sa_data$country, aus_sa_data$fatal)
+
+print(prop.table(fatal_count_aus_sa, margin = 1) *100)
+
+
+```
+*Observations: Fatality rate for Australia is about 11% and for SA near to 17%*
+
+2. \textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+Ans.: Based on the above analysis, it can be concluded that though there are more reported cases of shark attacks in Australia compared to South Africa, higher fatality rate prevails in SA. This may suggest that Australia is perhaps better equiped to save lives of those attacked by sharks. Further research is needed to identify reasons. Such theories can turn into hypotheses and then be tested against data to identify factors affecting fatalities.
+
+
+3. \textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+Ans.: Yes, there are some ethical concerns. The conclusions when put out of context may mislead others. While it may seems that South Africa is riskier compared to Australia, we don't know what those who got killed were doing there. Were they workers, tourists, etc. Also, we haven't taken into account population density and other factors into consideration. Such conclusions, in short, can lead to fear mongering. So, there is need for providing context and proper communication.
+
+
+# 3. Exploring NYC Data (35 pts) 
+
+In this problem set you will need, at minimum, the following R packages.
+
+```{r Setup, message=FALSE}
+# Load standard libraries
+library(tidyverse)
+library(nycflights13)
+library(lubridate)
+```
+
+#### Problem 1: Describing the NYC Flights Data
+
+In this problem set we will continue to use the data on all flights that departed NYC (i.e. JFK, LGA or EWR) in 2013. Recall, you can find this data in the `nycflights13` R package. Load the data in R and ensure you know the variables in the data.  Keep the documentation of the dataset (e.g. the help file) nearby.
+
+In Problem Set 1 you started to explore this data. Now we will perform a more thorough description and summarization of the data, making use of our new data manipulation skills to answer a specific set of questions. When answering these questions be sure to include the code you used in computing empirical responses, this code should include code comments. Your response should also be accompanied by a written explanation, code alone is not a sufficient response.
+
+##### Describe and Summarize
+
+Answer the following qeustions in order to describe and summarize the `flights` data. 
+
+\begin{enumerate}
+\item (2 pts) How many fligths out of NYC are there in the data?
+\item (2 pts) How many NYC airports are included in this data?  Which airports are these?
+\item (3 pts) Into how many airports did the airlines fly from NYC in 2013?
+\item (3 pts) How many flights were there from NYC to Seattle (airport code \texttt{SEA})?
+\item (3 pts) Were the any flights from NYC to Spokane \texttt{(GAG)}?
+\item (3 pts) What about missing destination codes?  Are there any destinations that do not look like valid airport codes (i.e. three-letter-all-upper case)?
+\item (4 pts)  Reflect and Question. Comment on the questions (and answers) so far.  Were you able to answer all of these questions?  Are all questions well defined?  Is the data good enough to answer all these?
+\end{enumerate}
+
+**Hint**:check the function `grepl` to do regular expression matching. You may use `"^[[:upper:]]{3}$"` for a regular expression that matches three upper case letters. See an example below:
+```
+grepl("^[[:upper:]]{3}$", c("12AB", "SEA", "ABCD", "ATL"))
+
+# [1] FALSE  TRUE FALSE  TRUE
+```
+
+```{r}
+#Revisiting the flights dataset
+head(flights)
+colnames(flights)
+
+```
+
+##### Solution 3.1
+
+1. How many flights out of NYC are there in the data?
+
+\textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+```{r}
+
+nrow(flights)
+
+```
+
+*Observation: There are 336776 such flights.*
+
+2. How many NYC airports are included in this data?  Which airports are these?
+
+\textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+```{r}
+
+nyc_airports = unique(c(flights$origin, flights$dest))
+length(nyc_airports)
+nyc_airports
+
+```
+
+*Observation: There are 107 such airports*
+
+3. Into how many airports did the airlines fly from NYC in 2013?
+
+\textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+Approach: Let's filter the data based on year and then select destination airport as output. Unique count them.
+```{r}
+
+unique(flights %>%
+  filter(year == '2013') %>%
+  select(dest))
+
+```
+
+*Observation: 105 Airports*
+
+4. How many flights were there from NYC to Seattle (airport code \texttt{SEA})?
+
+\textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+Approach: Simply filter destination airport using airport code and count them using nrow command
+
+```{r}
+
+nrow(flights %>%
+  filter(dest == "SEA"))
+
+
+```
+
+*Observation: There are 3923 flights from NYC to Seattle.*
+
+5. Were the any flights from NYC to Spokane \texttt{(GAG)}?
+
+\textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+```{r}
+
+nrow(flights %>%
+  filter(dest == "GAG"))
+
+```
+
+*Observation: No, there were no such flight.*
+
+6. What about missing destination codes?  Are there any destinations that do not look like valid airport codes (i.e. three-letter-all-upper case)?
+
+\textbf{\textcolor{red}{Solution:}} 
+
+```{r}
+
+
+missing_destinations = sum(is.na(flights$dest))
+print(paste("Number of missing destination codes:", missing_destinations))
+
+
+```
+
+*Observation: *
+
+###### Insert Response
+
+7. Reflect and Question. Comment on the questions (and answers) so far.  Were you able to answer all of these questions?  Are all questions well defined?  Is the data good enough to answer all these?
+
+\textbf{\textcolor{red}{Solution:}} 
+
+
+*Observation: I particularly found the second question a bit ambiguous. Asking how many airports included in the data didn't clarify if that was restricted to only origin or destination or both. Data is good to answer questions. It is a significantly large dataset.*
+
+
+
+#### Problem 2: NYC Flight Delays
+
+Flights are often delayed.  Let's look closer at this topic using the NYC Flight dataset. Answer the following questions about flight delays using the `dplyr` data manipulation verbs we talked about in class.
+
+##### (1) (3 pts) Typical Delays
+
+What is the typical delay of flights in this data?
+
+\textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+Source: https://www.tutorialspoint.com/r/r_mean_median_mode.htm
+
+Approach: Calculate mean and median delay to understand the statistics.
+
+```{r}
+
+#Departure delays
+mean_dept_delay = mean(flights$dep_delay, na.rm = TRUE)
+median_dept_delay = median(flights$dep_delay, na.rm = TRUE)
+
+#Arrival delays
+mean_arr_delay = mean(flights$arr_delay, na.rm = TRUE)
+median_arr_delay = median(flights$arr_delay, na.rm = TRUE)
+
+#printing results
+print(paste("Typical Departure Delay: Mean = ", round(mean_dept_delay,2),"minutes. Median = ", round(median_dept_delay,2), "minutes"))
+
+print(paste("Typical Arrival Delay: Mean = ", round(mean_arr_delay,2),"minutes. Median = ", round(median_arr_delay,2), "minutes"))
+
+
+```
+
+*Observation: It can be observed that there is significantly more departure delay compared to arrival delay. Seems like an airport with high traffic.*
+
+##### (2) (3 pts) Defining Flight Delays
+
+What definition of flight delay did you use to answer part (a)? Did you do any specific exploration and description of this variable prior to using it? If no, please do so now. Is there any missing data?  Are there any implausible or invalid entries?  
+
+\textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+The definition of delay I used revolved around median and mean. However, there are a significant number of missing values NA's as well. Further, there are some negative values which indicate early arrivals and departures. Need to study their count to understand them better. 
+
+```{r}
+summary(flights$dep_delay)
+summary(flights$arr_delay)
+
+```
+
+]
+
+##### (3) (3 pts) Delays by Destination
+
+Now compute flight delay by destinations.  Which ones are the worst three destinations from NYC if you don't like flight delays? Be sure to justify your delay variable choice. 
+
+\textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+Approach: I will use mean delay and group them by destination. This will allow me to then fetch the top 3 destinations. 
+
+```{r}
+
+
+worst_destinations = flights %>%
+  group_by(dest) %>%                          # Group by destination
+  summarise(avg_arr_delay = mean(arr_delay, na.rm = TRUE)) %>%  # Calculate average arrival delay
+  arrange(desc(avg_arr_delay)) %>%           # descending order
+  top_n(3, avg_arr_delay)                     # top 3 worst destinations
+
+
+print(worst_destinations)
+
+
+```
+
+*Observation: CAE, TUL and OKC are the worst destinations with highest delays.*
+
+##### (4) (3 pts) Delays by time of day
+
+We'd like to know how much do delays depend on the time of day. Are there more delays in the mornings? Late night when all the daily delays may accumulate? Create a visualization (graph or table) to illustrate your findings.
+
+`\textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+SOURCE: http://www.sthda.com/english/wiki/ggplot2-barplots-quick-start-guide-r-software-and-data-visualization
+
+```{r}
+# Creating a new data drame with relevant data
+delay_by_hour  =  flights %>%
+  mutate(dept_hour = dep_time %/% 100) %>%  
+  group_by(dept_hour) %>%                    
+  summarise(avg_arr_delay = mean(arr_delay, na.rm = TRUE)) %>% 
+  arrange(dept_hour)                         # Sort by hour
+
+# Plotting the data using a bar plot
+ggplot(delay_by_hour, aes(x = factor(dept_hour), y = avg_arr_delay)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(title = "Average Arrival Delay by Departure Hour",
+       x = "Departure Hour",
+       y = "Average Arrival Delay (minutes)")
+
+
+```
+
+*Observation: There is more delay between 12am to 3am. Then there are early arrivals. From 3pm onwards, delays start to pile up exponentially till 3 am in the morning.*
+
+##### (5) (3 pts) Reflect and Challenge Your Results
+
+After completing the exploratory analyses from Problem 2, do you have any concerns about these questions and your findings? How well defined were the questions? If you feel a question is not defined well enough, re-formulate it in a more specific way so you can actually answer this question. And state clearly what is your more precise question.  
+Can you formulate any additional questions regarding flight delays?
+
+\textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+*The question on typical delays did not particularly focus on arrival or departure delay. This could lead to different analysis based on assumptions. In fact, 'typical' is a rather confusing metric. A better way could have asked for mean, median or mode of delay.*
+
+*Additional Question: How does average flight delay vary across different airline carriers operating from NYC airports in 2013?*
+
+
+
+References:
+
+1. Stack Overflow. (2022). How can I use str_detect in combination with the operator. https://stackoverflow.com/questions/71588215/how-can-i-use-str-detect-in-combination-with-the-operator
+2. RDocumentation. ifelse: Conditional Element Selection. https://www.rdocumentation.org/packages/base/versions/3.6.2/topics/ifelse

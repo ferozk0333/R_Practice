@@ -1,0 +1,676 @@
+---
+title: "IMT 573: Problem Set 3 - Working with Data Part 2"
+author: "Feroz Khan"
+date: 'Due: Tuesday, October 22, 2024 by 10:00AM PT'
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document:
+    df_print: paged
+---
+
+<!-- This syntax can be used to add comments that are ignored during knitting process. -->
+
+##### Collaborators: <!-- BE SURE TO LIST ALL COLLABORATORS HERE! -->
+
+##### Instructions:
+
+Before beginning this assignment, please ensure you have access to R and RStudio. 
+
+1. Download the `problem_set3.Rmd` file from Canvas. Open `problem_set3.Rmd` in RStudio and supply your solutions to the assignment by editing `problem_set3.Rmd`. 
+
+2. Replace the "Insert Your Name Here" text in the `author:` field with your own full name. Any collaborators must be listed on the top of your assignment. Collaboration shouldn't be confused with group project work (where each person does a part of the project). Working on problem sets should be your individual contribution.
+
+3. Be sure to include well-documented (e.g. commented) code chucks, figures, and clearly written text chunk explanations as necessary. Any figures should be clearly labeled and appropriately referenced within the text. Be sure that each visualization adds value to your written explanation; avoid redundancy -- you do not need four different visualizations of the same pattern.
+
+4. All materials and resources that you use (with the exception of lecture slides) must be appropriately referenced within your assignment. In particular, note that Stack Overflow is licenses as Creative Commons (CC-BY-SA). This means you have to attribute any code you refer from SO.
+
+5. Partial credit will be awarded for each question for which a serious attempt at finding an answer has been shown. But please **DO NOT** submit pages and pages of hard-to-read code and attempts that is impossible to grade. That is, avoid redundancy. Remember that one of the key goals of a data scientist is to produce coherent reports that others can easily follow.  Students are \emph{strongly} encouraged to attempt each question and to document their reasoning process even if they cannot find the correct answer. If you would like to include R code to show this process, but it does not run without errors you can do so with the `eval=FALSE` option as follows:
+
+```{r example chunk with a bug, eval=FALSE}
+a + b # these object dont' exist 
+# if you run this on its own it with give an error
+```
+
+6. When you have completed the assignment and have **checked** that your code both runs in the Console and knits correctly when you click `Knit PDF`, rename the knitted PDF file to `ps1_ourLastName_YourFirstName.pdf`, and submit the PDF file on Canvas.
+
+7.  Collaboration is often fun and useful, but each student must turn in an individual write-up in their own words as well as code/work that is their own.  Regardless of whether you work with others, what you turn in must be your own work; this includes code and interpretation of results. The names of all collaborators must be listed on each assignment. Do not copy-and-paste from other students' responses or code.
+
+```{r}
+
+```
+
+```{r setup, include=FALSE}
+# load required libraries
+library(dplyr)
+library(lubridate)
+library(tidyverse)
+library('tigris')
+library('stringr')
+```
+
+# Instructions
+
+# Revisiting COVID-19 Data
+
+We are working with COVID-19 Data (which was also explored in Problem Set 2).
+
+This dataset asks you to assemble and manipulate a COVID-19 dataset, and use it for a few illustrative figures. It replicates many real-worlds problems, including mismatching variable coding and differing variable names. We expect you to use dplyr-framework but you are welcome to use something else. Many questions also include hints and suggestions, these are designed to help you in case you do not have a good idea about how to proceed. But if you know better then you are welcome to follow other routes.
+
+Most of the data is downloaded from John Hopkins university COVID-19 data project. The main variables in the monthly files are
+
+**FIPS** US only. Federal Information Processing Standards code that uniquely identifies counties within
+the USA.
+
+**Admin2** County name. US only.
+
+**Province_State** Province, state or dependency name.
+
+**Country_Region** Country, region or sovereignty name. The names of locations included on the Website
+correspond with the official designations used by the U.S. Department of State. Confirmed Counts include confirmed and probable (where reported).
+
+**Deaths** Counts include confirmed and probable (where reported).
+
+This data is supplemented with information from the US Department of State, and Wikipedia. The data is on canvas: [here](https://canvas.uw.edu/courses/1749037/files/folder/PS%20-%20Data%20-%20Aut%2024?preview=124786872).
+
+
+\textbf{\textcolor{blue}{Note: The following code will load the required initial information and make necessary modifications to help solve the problems in this problem set. 
+Please ensure the unzipped folder `covid' is placed in your current working directory.}}
+
+
+```{r code-req}
+# Load African countries list
+africa <- read.delim("covid/countries-africa.csv.bz2")
+africanCountries <- africa$country
+
+# Adjust the names of specific African countries for matching the COVID dataset
+africanCountries[africanCountries == "Democratic Republic of the Congo"] <- "Congo (Kinshasa)"
+africanCountries[africanCountries == "Republic of the Congo"] <- "Congo (Brazzaville)"
+africanCountries[africanCountries == "Ivory Coast"] <- "Cote d'Ivoire"
+
+
+```
+
+
+
+# 1.1 Load and merge all datasets (20pt)
+
+Now we load and merge all dataset for the complete covid-era. But before we get there, we need one more step of preparation: get month out of the file name.
+
+1. (5pt) The file name is written as “covid-global_<mm>-<date>-<yyyy>.csv.bz2”, and date always “01” in these files. Extract the date part from the first file name as Date object.
+    
+    Hint: check out as.Date and it’s format argument. Format accepts the file name as a pattern, just you have to replace month with %m, date with %d, and year with %Y. You may also use gsub or other string replacement functions to remove the non-date part of the file name. See more the help file for strptime for time format patterns.
+
+2. (15pt) Now it is time to merge all the data files into one. I recommend to proceed along these lines:
+    - Create an empty final dataset
+    - Loop over all the files. Inside the loop:
+        - load the file
+        - extract African countries only, and preserve only the number of deaths (we do not use other variables in this assignment). But note that variable may differ across different dataset!
+        - extract year and month from the file name and add it to the extracted data. Above you extracted the date, check out lubridate::year and lubridate::month for how to extract year and month from a date.
+        - merge the new dataset to the final dataset. Ensure you do not mess up the countries!
+        Question: how should you merge these datasets?
+        
+    Hint: I got a dataset with 986 rows when I did all this.
+    
+##### Solution 1.1
+
+1. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+Use gsub to isolate the date. Regular expressions to extract teh month, day and year from the file name.
+```{r}
+
+filename = "covid-global_01-01-2021.csv.bz2"
+
+
+date_text = gsub("covid-global_|\\.csv\\.bz2", "", filename)
+
+
+date_object = as.Date(date_text, format="%m-%d-%Y")
+
+
+date_object
+
+
+```
+
+Observation: The gsub removes non-date part of the string and replaces it with empty string.
+
+2. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+We can use a row-wise merge as each row represents data that comes from a different time. We need to ensure that we are appending the data and not overwriting it. Also, we will have to use case statements to ensure we take into account different cases.
+
+
+
+
+```{r}
+
+path_of_files = "C:/Users/DELL/Downloads/covid"
+
+file_list = list.files(path = path_of_files,pattern = "covid-global_.*\\.csv.bz2", full.names = TRUE)
+
+data = data.frame()  #empty dataframe
+
+
+#loop over all the files
+
+for (file_name in file_list) {
+  
+
+  temp_data = read.delim(file_name)
+  
+ #  print(head(temp_data,2))
+  
+#Using case statement for different variable names
+if ("Country_Region" %in% colnames(temp_data)) {
+    temp_data = temp_data %>% rename(country = Country_Region)
+  } else if ("Country.Region" %in% colnames(temp_data)) {
+    temp_data = temp_data %>% rename(country = Country.Region)
+  }
+  
+african_data = temp_data %>%
+    filter(country %in% africanCountries)
+ 
+african_data = african_data %>% select(country, Deaths)
+ 
+
+  # Extract the date from the filename
+  date_part = str_extract(file_name, "\\d{2}-\\d{2}-\\d{4}")
+  date = dmy(date_part)
+
+  # Add year and month 
+  african_data = african_data %>%
+    mutate(year = year(date), month = month(date))
+  
+  data = bind_rows(data, african_data)
+}
+
+head(data)
+
+
+```
+
+
+
+
+Observation: 986 rows extracted.
+
+# 1.2 Display time series (20pt)
+
+Finally, let’s see how has the number of COVID-19 deaths developed over time in Africa.
+
+1. (4pt) Extract the population size from the dataset of African countries. Ensure the result is a valid number, you need to do some math with it next.
+2. (2pt) For each country, compute the death rate: number of deaths per 1M population. Note: you have to merge the population data with the covid death data you compiled above.
+3. (3pt) Which 10 countries have the largest death rate? (As of the latest date in the data, Oct 1st, 2021).
+4. (4pt) Make a plot where you show how the death rate has grown in these 10 countries over time. Ensure the plot is appropriately labelled and uses appropriate plot type, colors, and other visual details.
+5. (5pt) Let us also look at the number of monthly deaths: how much has the death rate grown from one month to another in these 10 countries? Compute the number of new monthly deaths (per 1M population) and display on a similar plot.
+6. (2pt) Which country out of these 10 experienced the highest peak in the new monthly deaths? When was that? How many COVID “waves” can you see on the plot?
+
+
+<!-- For reference, here is my plot (w/o annotations): -->
+<!-- ```{r include_image, echo=FALSE, out.width='50%'} -->
+<!-- knitr::include_graphics("sample_graph.png") -->
+<!-- ``` -->
+
+
+##### Solution 1.2
+
+1. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+```{r total_pop}
+
+africa_df = read.delim("countries-africa.csv")
+
+class(africa_df$population)
+
+#convert population to numeric
+africa_df = africa_df %>%
+  mutate(population = as.numeric(gsub(",", "", population)))
+
+
+total_population = sum(africa_df$population, na.rm = TRUE)
+
+
+print(total_population)
+
+
+```
+
+Observation: Converted character datatype to numeric and summed the population column
+
+2. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+```{r}
+#merging total_population column
+data = data %>% mutate(total_population)
+
+#calculating death rate
+data = data %>%
+  mutate(death_per_million = (Deaths / total_population) * 1e6)
+
+head(data)
+```
+
+Observation: The dataframe is now a more representative of the death ratio, removing any biases that may arise by simply looking at the numbers.
+
+3. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+
+```{r}
+
+average_death_rates = data %>%
+  group_by(country) %>%
+  summarise(average_death_rate = mean(death_per_million, na.rm = TRUE)) %>%
+  arrange(desc(average_death_rate)) %>%
+  slice_head(n = 10)
+
+print(average_death_rates)
+```
+
+Observation: South Africa tops the list
+
+4. \textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+```{r}
+
+library(ggplot2)
+
+top_10 = average_death_rates$country
+
+
+top_countries_data = data %>%
+  filter(country %in% top_10)
+
+# graph.plot
+ggplot(top_countries_data, aes(x = interaction(year, month), y = death_per_million, group = country, color = country)) +
+  geom_line(size = 1) +  
+  geom_point(size = 2) + 
+  labs(
+    title = "Growth of Death Rates Over Time",
+    x = "Date",
+    y = "Death Rate per Million",
+    color = "Country"
+  ) 
+
+
+
+```
+
+
+
+5. \textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+```{r, eval=FALSE}
+
+monthly_deaths = top_countries_data %>%
+  arrange(country, year, month) %>%  #sorted
+  group_by(country) %>%
+  mutate(previous_month_deaths = lag(Deaths, order_by = interaction(year, month)),
+         new_monthly_deaths = (Deaths - previous_month_deaths) / (population / 1e6))
+
+#plot
+ggplot(monthly_deaths, aes(x = interaction(year, month), y = new_monthly_deaths, group = country, color = country)) +
+  geom_line(size = 1) +  # Line for each country
+  geom_point(size = 2) +  # Points for each observation
+  labs(
+    title = "New Monthly Deaths",
+    x = "Date",
+    y = "New Monthly Deaths per Million",
+    color = "Country"
+  ) 
+
+
+```
+
+
+
+6. \textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+
+The approach here would be to group data by country and then summarize data using max function that calculates maximum new monthly covid deaths and then we arrange them.
+```{r, eval=FALSE}
+
+
+peak_covid= monthly_deaths %>%
+  group_by(country) %>%
+  summarize(max_death_rate = max(new_monthly_deaths, na.rm = TRUE),
+            date_of_peak = interaction(year, month)[which.max(new_monthly_deaths)]) %>%
+  arrange(desc(max_death_rate))
+
+
+
+
+```
+
+Observation:
+
+
+
+# 2. Census Data
+
+
+#### Joining Census Data to Police Reports
+
+In this problem set, we will be joining disparate sets of data - namely: Seattle police crime data, information on Seattle police beats, and education attainment from the US Census. Our goal is to build a dataset where we can examine questions around crimes in Seattle and the educational attainment of people living in the areas in which the crime occurred; this requires data to be combined from these two individual sources.
+
+As a general rule, be sure to keep copies of the original dataset(s) as you work through cleaning.
+
+##### (a) (5 pts) Importing and Inspecting Crime Data
+
+Load the Seattle crime data from the provided `crime_data.csv` data file - [Canvas file link](https://canvas.uw.edu/courses/1749037/files/folder/PS%20-%20Data%20-%20Aut%2024?preview=125195311). We will call this dataset the "Crime Dataset." Perform a basic inspection of the Crime Dataset and discuss what you find.
+
+\textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+```{r}
+crime_data = read.csv("C:/Users/DELL/Downloads/crime_data.csv")
+head(crime_data)
+
+#:et's explore the structure of the data
+str(crime_data)
+
+# basic statistics
+summary(crime_data)
+
+#Missing values and dimensions of the data frame
+colSums(is.na(crime_data))
+dim(crime_data)
+
+
+
+```
+
+Observation: str tells about the structure of the data - numeric, character string and so on. Summary tells us about the basic descriptive statistics of numerical columns. 
+
+There is report number, offence start and end date which are critical time series columns, longitudes and latitudes tell about location and precinct tell us about neighbourhood. There are no missing values.
+
+##### (b) (5 pts) Looking at Years That Crimes Were Committed
+
+Let's start by looking at the years in which crimes were committed. What is the earliest year in the dataset? Are there any distinct trends with the annual number of crimes committed in the dataset?
+
+Subset the data to only include crimes that were committed after 2011. Going forward, we will use this data subset.
+
+\textbf{\textcolor{red}{Solution:}} 
+
+```{r}
+colnames(crime_data)
+
+```
+
+###### Insert Response
+
+Firstly, we will extract year from offence start date. Then we will find the earliest year. Then we will make a plot
+of the annual crime count for each year and plot it.
+
+```{r Q2}
+#extracting and converting date formats
+crime_data$Offense.Start.DateTime = as.POSIXct(crime_data$Offense.Start.DateTime, format="%m/%d/%Y %I:%M:%S %p")
+
+#taking out year
+crime_data$Year = format(crime_data$Offense.Start.DateTime, "%Y")
+crime_data$Year = as.numeric(crime_data$Year)
+
+#earliest year in the dataset
+earliest_year = min(crime_data$Year, na.rm = TRUE)
+print(paste("The earliest year in the dataset is:", earliest_year))
+
+#crimes per year
+annual_crime_count = crime_data %>%
+  group_by(Year) %>%
+  summarize(crimes_per_year = n())
+
+# Plot
+library(ggplot2)
+ggplot(annual_crime_count, aes(x=Year, y=crimes_per_year)) +
+  geom_line() +
+  ggtitle("Crimes Committed Annually") +
+  xlab("Year") + 
+  ylab("Number of Crimes")
+
+#data set for crimes after 2011
+crime_data_after_2011 <- filter(crime_data, Year > 2011)
+
+# dimensions of the subsetted data
+dim(crime_data_after_2011)
+
+
+```
+
+Observation: It can be observed that the earliest crime was committed in 1908. There is a spike in cases post 2010.
+
+
+##### (c) (5 pts) Looking at Frequency of Beats
+
+What is a Police Beat? How frequently are the beats in the Crime Dataset listed? Are there any anomolies with how frequently some of the beats are listed? Are there missing beats?
+
+\textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+Source: https://en.wikipedia.org/wiki/Beat_(police)#:~:text=In%20police%20terminology%2C%20a%20beat,presence%20across%20a%20wide%20area
+
+A Police Beat is a particular geographic area that is assigned to a police officer for patroling purposes.
+
+Approach: 
+1. Frequency of beats
+2. Anomalies check
+3. Missing values check
+
+```{r}
+#missing values 
+missing_beats = sum(is.na(crime_data$Beat))
+missing_beats
+
+#Frequency of beats
+beat_frequency = crime_data %>%
+  group_by(Beat) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count))
+
+#top 10 most frequent beats
+head(beat_frequency, 10)
+
+# Check for anomalies 
+library(ggplot2)
+ggplot(beat_frequency, aes(x=reorder(Beat, count), y=count)) +
+  geom_bar(stat="identity") +
+  coord_flip() +
+  ggtitle("Police Beats Count") +
+  xlab("Beat") +
+  ylab("Frequency")
+
+# Identify potential anomalies, e.g., beats with significantly higher/lower frequency
+# Any beats with unusually high/low values will stand out in the plot
+
+```
+
+Observation: There are no missing beats. This means data is of high quality. Highest beat frequency comes from K3. The top beats likely corresponds to areas with high population density. 
+
+
+##### (d) (4 pts) Importing Police Beat Data and Filtering on Frequency
+
+Load the data on Seattle police beats  provided in `police_beat_and_precinct_centerpoints.csv` - [Canvas file link](https://canvas.uw.edu/courses/1749037/files/folder/PS%20-%20Data%20-%20Aut%2024?preview=125195312). We will call this dataset the "Beats Dataset."
+
+Does the Crime Dataset include police beats that are not present in the Beats Dataset? If so, how many and with what frequency do they occur? Would you say that these comprise a large number of the observations in the Crime Dataset or are they rather infrequent? Do you think removing them would drastically alter the scope of the Crime Dataset?
+
+Let's remove all instances in the Crime Dataset that have beats which occur fewer than 10 times across the Crime Dataset. Also remove any observations with missing beats. After only keeping years of interest and filtering based on frequency of the beat, how many observations do we now have in the Crime Dataset?
+
+\textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+Source: https://www.geeksforgeeks.org/get-exclusive-elements-between-two-objects-in-r-programming-setdiff-function/
+```{r}
+
+beats_data = read.csv("C:/Users/DELL/Downloads/police_beat_and_precinct_centerpoints.csv")
+head(beats_data)
+
+```
+```{r}
+
+crime_beats = unique(crime_data$Beat)
+beats_list = unique(beats_data$Name)
+
+#beats present in the Crime Dataset but not in the Beats DAtaset
+invalid_beats = setdiff(crime_beats, beats_list)
+
+# Count how frequently these invalid beats occur in the Crime Dataset
+invalid_beat_count = crime_data %>%
+  filter(Beat %in% invalid_beats) %>%
+  group_by(Beat) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count))
+
+invalid_beat_count
+
+
+```
+
+
+Observation: There are 7322 unknown beats.
+
+```{r}
+#percentage of observations with invalid beats
+total_crimes = nrow(crime_data)
+invalid_crimes = sum(invalid_beat_count$count)
+invalid_crime_percentage = (invalid_crimes / total_crimes) * 100
+
+print(paste("Percentage of invalid beats in the Crime Dataset:", round(invalid_crime_percentage, 2), "%"))
+
+
+#remove missing beats and beats with fewer than 10 occurrences
+crime_data_filtered = crime_data %>% filter(!is.na(Beat)) %>% group_by(Beat) %>%
+    filter(n() >= 10) %>% ungroup()
+
+
+print(paste("Number of observations after filtering:", nrow(crime_data_filtered)))
+
+
+```
+
+##### (e) (6 pts) Importing and Inspecting Police Beat Data
+
+To join the Beat Dataset to census data, we must have census tract information. Use the `tigirs` package to extract the 15-digit census tract for each police beat using the corresponding latitude and longitude. Do this using each of the police beats listed in the Beats Dataset. Do not use a for-loop for this but instead rely on R functions (e.g. the 'apply' family of functions). Add a column to the Beat Dataset that contains the 15-digit census tract for the each beat. (HINT: you may find `tigris`'s `call_geolocator_latlon` function useful)
+
+We will eventually join the Beats Dataset to the Crime Dataset. We could have joined the two and then found the census tracts for each beat. Would there have been a particular advantage/disadvantage to doing this join first and then finding census tracts? If so, what is it? (NOTE: you do not need to write any code to answer this)
+
+\textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+```{r}
+
+#ensus tract using latitude and longitude
+get_census_tract = function(lat, lon) {
+ 
+  result <- call_geolocator_latlon(lat = lat, lon = lon)
+  
+
+  if (is.list(result) && !is.null(result$geoid)) {
+    return(result$geoid)  # Return the geoid if present
+  } else {
+    return(NA)  # Return NA if no geoid is found
+  }
+}
+
+# Apply the function to each row of the Beats Dataset using sapply
+beats_data$census_tract <- sapply(1:nrow(beats_data), function(i) {
+  get_census_tract(beats_data$Latitude[i], beats_data$Longitude[i])
+})
+
+# Inspect the updated Beats Dataset with census tract information
+head(beats_data)
+
+
+```
+
+
+
+##### (f) (6 pts) Extracting FIPS Codes
+
+Once we have the 15-digit census codes, we will break down the code based on information of interest. You can find more information on what these 15 digits represent here: https://transition.fcc.gov/form477/Geo/more_about_census_blocks.pdf.
+
+
+\textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+```{r}
+
+```
+
+Observation:
+
+
+##### (g) (6 pts) Extracting 11-digit Codes
+
+The census data uses an 11-digit code that consists of the state, county, and tract code. It does not include the block code. To join the census data to the Beats Dataset, we must have this code for each of the beats. Extract the 11-digit code for each of the beats in the Beats Dataset. The 11 digits consist of the 2 state digits, 3 county digits, and 6 tract digits. Add a column with the 11-digit code for each beat.
+
+\textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+We can use mutate() function to create a new column in the dataframe.
+
+```{r}
+
+beats_data %>%
+  filter(census_tract.isna = TRUE)
+```
+
+Observation:
+
+
+##### (h) (5 pts) Extracting 11-digit Codes From Census
+
+Now, we will examine census data  provided om `census_edu_data.csv` - [Canvas file link](https://canvas.uw.edu/courses/1749037/files/folder/PS%20-%20Data%20-%20Aut%2024?preview=125195294). The data includes counts of education attainment across different census tracts. Note how this data is in a 'wide' format and how it can be converted to a 'long' format. For now, we will work with it as is.
+
+The census data contains a `GEO.id` column. Among other things, this variable encodes the 11-digit code that we had extracted above for each of the police beats. Specifically, when we look at the characters after the characters "US" for values of `GEO.id`, we see encodings for state, county, and tract, which should align with the beats we had above. Extract the 11-digit code from the `GEO.id` column. Add a column to the census data with the 11-digit code for each census observation.
+
+\textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+```{r}
+
+```
+
+Observation:
+
+
+##### (i) (10 pts)  Join Datasets
+
+Join the census data with the Beat Dataset using the 11-digit codes as keys. Be sure that you do not lose any of the police beats when doing this join (i.e. your output dataframe should have the same number of rows as the cleaned Beats Dataset - use the correct join). Are there any police beats that do not have any associated census data? If so, how many?
+
+Then, join the Crime Dataset to our joined beat/census data. We can do this using the police beat name. Again, be sure you do not lose any observations from the Crime Dataset. What is the final dimensions of the joined dataset?
+
+\textbf{\textcolor{red}{Solution:}} 
+
+###### Insert Response
+
+Approach: We can use left_join to club the two tables based on common key. First table would be the police beats table(on the left) and the other table on the right.
+
+```{r}
+
+```
+
+Observation:
+
+
+Once everything is joined, save the final dataset for future use.

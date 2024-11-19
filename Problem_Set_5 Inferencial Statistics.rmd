@@ -1,0 +1,457 @@
+---
+title: 'IMT 573: Problem Set 5 - Statistical Theory'
+author: "Feroz Khan"
+date: 'Due: Tuesday, November 5, 2024 by 10:00PM PT'
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document:
+    df_print: paged
+---
+
+<!-- This syntax can be used to add comments that are ignored during knitting process. -->
+
+##### Collaborators: <!-- BE SURE TO LIST ALL COLLABORATORS HERE! -->
+
+##### Instructions:
+
+Before beginning this assignment, please ensure you have access to R and RStudio; this can be on your own personal computer or on the IMT 573 R Studio Server. 
+
+1. Download the `problem_set5.Rmd` file from Canvas or save a copy to your local directory on RStudio Server. Open `problem_set5.Rmd` in RStudio and supply your solutions to the assignment by editing `problem_set5.Rmd`. 
+
+2. Replace the "Insert Your Name Here" text in the `author:` field with your own full name. Any collaborators must be listed on the top of your assignment. 
+
+3. Be sure to include well-documented (e.g. commented) code chucks, figures, and clearly written text chunk explanations as necessary. Any figures should be clearly labeled and appropriately referenced within the text. Be sure that each visualization adds value to your written explanation; avoid redundancy -- you do not need four different visualizations of the same pattern.
+
+4.  Collaboration on problem sets is fun and useful, and we encourage it, but each student must turn in an individual write-up in their own words as well as code/work that is their own.  Regardless of whether you work with others, what you turn in must be your own work; this includes code and interpretation of results. The names of all collaborators must be listed on each assignment. Do not copy-and-paste from other students' responses or code.
+
+5. All materials and resources that you use (with the exception of lecture slides) must be appropriately referenced within your assignment.  
+
+6. Remember partial credit will be awarded for each question for which a serious attempt at finding an answer has been shown. Students are \emph{strongly} encouraged to attempt each question and to document their reasoning process even if they cannot find the correct answer. If you would like to include R code to show this process, but it does not run without errors, you can do so with the `eval=FALSE` option. (Note: I am also using the `include=FALSE` option here to not include this code in the PDF, but you need to remove this or change it to `TRUE` if you want to include the code chunk.)
+
+```{r example chunk with a bug, eval=FALSE, include=FALSE}
+a + b # these object dont' exist 
+# if you run this on its own it with give an error
+```
+
+7. When you have completed the assignment and have **checked** that your code both runs in the Console and knits correctly when you click `Knit PDF`, rename the knitted PDF file to `ps5_YourLastName_YourFirstName.pdf`, and submit the PDF file on Canvas.
+
+##### Setup: 
+
+In this problem set you will need, at minimum, the following R packages.
+
+```{r Setup, message=FALSE}
+# Load standard libraries
+library(tidyverse)
+```
+
+### Problem 1: Overbooking Flights (18pts)
+
+You are hired by \emph{Air Nowhere} to recommend the optimal overbooking rate. It is a small airline that uses a 100-seat plane to carry you from Seattle to, well, nowhere.  The tickets cost \$100 each, so a fully booked plane generates \$10,000 revenue.  The sales team has found that the probability, that the passengers who have paid their fare actually show up is 98\%, and individual show-ups can be considered independent.  The additional costs, associated with finding an alternative solutions for passengers who are refused boarding are \$500 per person.
+
+
+\begin{enumerate}
+ \item (2pts) Which distribution would you use to describe the actual number of show-ups for the flight? \textcolor{blue}{Hint: read OIS ch 3 about distributions.}
+ \item (2pts) Assume the airline never overbooks.  What is it’s expected profit? Expected profit means expected income/revenue from the ticket sales, minus the expected costs related to alternative solutions.
+ \item (2pts) Now assume the airline sells 101 tickets for 100 seats.  What is the probability that all 101 passengers will show up?
+ \item (2pts) What are the expected profits ($=$ revenue $-$ expected additional costs) in this case?  Would you recommend overbooking over selling just the right number of tickets?
+ \item (2pts) Now assume the airline sells 102 tickets.  What is the probability that all 102 passengers show up?
+ \item (2pts) What is the probability that 101 passengers -- still one too many -- will show up?
+ \item (2pts) Would it be advisable to sell 102 tickets, i.e. is the expected revenue from selling 102 tickets larger than from selling 100 and 101 tickets?
+ \item (2pts) What is the optimal number of seats to sell for the airline?  How big are the expected profits?
+ \item (2pts) What does it mean that the show-ups are independent?  Why is it important? \textcolor{blue}{Hint: read about independence in OIS 2.1.6 (2017 version).}
+\end{enumerate}
+
+Note: some of the expressions may be hard to write analytically.  Feel free to use computer for the calculations, just show the code and explain what you are doing.
+
+
+##### Solution 1
+
+1. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+I would use Binomial distribution with n as the number of passengers on the x axis and find 98% probability to find the number of people showing up
+
+2. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+Observation: There won't be costs for the customers denied booking as there are no issues. 
+Expected seats filled will be 0.98 x 100 = 98 seats. 
+Since each seat costs $100 -> 98 x 100 = $9800 (Revenue)
+
+Costs  = 0
+
+Expected Profit = Revenue - Costs -> 9800 - 0 = $9800
+
+
+3. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+Observation: Probability of one person showing up = 0.98
+Probability of 101 persons showing up = (0.98)^101
+```{r}
+(0.98)^101
+
+```
+13% (approx)
+
+4. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+Observation: Total revenue = 100 * 101 = $10100
+
+Since there is a 13% chance that all passengers show up, we need to find costs associated with that 13%
+
+-> 0.13 * 500 (alternate charges for one extra passenger) = $65
+
+Total Expected Profit = 10100 - 65 = $10035
+
+Yes, overbook as the profit could be better in 87% cases out of 100 than usual booking
+
+
+5. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+```{r}
+0.98^102
+
+```
+Observation: There is 12.7% chance of 102 passengers showing up 
+
+6. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+nCr (outcome a)*r x (outcome b)*(n-r)
+
+```{r}
+# Calculating the probability 
+prob = dbinom(101, size = 102, prob = 0.98)
+
+prob
+
+```
+Observation: There is 26.5% chance of this happening
+
+7. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+```{r}
+
+#exactly 102 passengers show up
+prob_102_show_up = dbinom(102, size = 102, prob = 0.98)
+
+
+expected_additional = (prob_102_show_up * 2 * 500)
+
+expected_profit = 10200  - expected_additional
+
+expected_additional
+expected_profit
+
+prob_102_show_up
+
+
+```
+
+Observation:
+
+Total expected revenue = 100 x 102 = $10200
+Total costs = 500 x 2 = $1000
+
+Chance of 102 people showing up = 12.7%
+
+Costs expected = 0.127 * 1000 = $127
+
+Total expected profit = 10200 - 127 => $10073
+
+Yes, profit is better than having 100 or 101 passengers showing up.
+
+8. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+Observation: The optimal number of people showing up shoulbe 102. That way profits are maximized to 10073.
+
+9. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+Observation: Show ups are independent means that what one person decides (show up or not) has no influence on the decision of others. It's still going to be 0.98 chance of showing up.
+
+This is important because it is a basic assumption of Binomial distribution, else we won't be able to find probabilities like that.
+
+
+
+### Problem 2: The Normal Distribution
+
+In this problem we will explore data and ask whether it is approximately normal. We will consider two different datasets, one on height and one of research paper citations.   
+
+#### (a) Let's start with the human height data. (28pts)
+
+\begin{enumerate}
+\item (3pts) What kind of measurement (nominal, ordered, difference, ratio) does human height use?  How should it be measured (e.g. continuous, discrete, positive...)?
+\item (4pts) Read the \texttt{fatherson.csv} dataset into R.  It contains two columns, father's height and son's height, (in cm).  Let's focus on father's height for a moment, (variable \texttt{fheight}).  Provide a basic description of this variable, for example how many observations do we have?  Do we have any missing data?
+\item (8pts) Compute mean, median, mode, standard deviation and range of the heights.  Discuss the relationship between these numbers.  Is mean larger than median?  Than mode?  By how much (in relative terms)? How does standard deviation compare to mean?
+
+\textcolor{blue}{Hint: there is no built-in method to computing sample modes in R.  Several packages provide a way to do it, for example try \texttt{modeest::mlv} (installed on the server).  However, as height is a continuous variable, there are many ways to compute it. Take a look at the corresponding documentation.  You may experiment with a few options and pick one, for instance the \emph{naive} method or write your own!}
+
+\item (13pts) Plot a histogram of the data.  Add to this histogram: (1) a plot of normal distribution with the same mean and standard deviation as the data, (2) the sample mean, median, and mode.  You can use vertical lines of different colors to do this. What do you find?  Are the histogram and the density plot similar?
+\end{enumerate}
+
+
+```{r}
+height_df = read.delim("fatherson.csv")
+head(height_df,5)
+citation_df = read.delim("mag-in-citations.csv", sep = ',')
+head(citation_df,5)
+```
+
+##### Solution 2 (a)
+
+1. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+Ans: Height can take any positive value with in a range and can't be negative. Also, we should use 
+ratios as a measure , for example, X is twice as tall as Y.
+
+2. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+```{r}
+
+length(height_df$fheight)  # number of observations
+
+summary(height_df[1])  #basic descriptive statistics
+
+sum(is.na(height_df[1])) #Finding the sum of NA's
+
+```
+
+Observation: There are no NA values. Also, it can be observed that there are no minimum values and the maximum height is also realistic.
+
+3. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+```{r}
+
+mean_fheight = mean(height_df$fheight, na.rm = TRUE)
+
+median_fheight = median(height_df$fheight, na.rm = TRUE)
+
+mode_fheight = as.numeric(names(sort(table(height_df$fheight), decreasing = TRUE)[1]))
+
+#standard Deviation
+sd_fheight = sd(height_df$fheight, na.rm = TRUE)
+
+range_fheight = range(height_df$fheight, na.rm = TRUE)
+range_diff = diff(range_fheight)
+
+mean_fheight
+median_fheight
+mode_fheight
+sd_fheight
+range_fheight
+range_diff
+
+```
+
+Observations: If the distribution is symmetric, the mean and median and mode should be close. Else, there is skewness in data. That could be either left or right. This skewness is introduced by outliers in the dataset.
+
+Standard deviation tells about the spread of the data. That is how widely far away data points are from the mean.
+
+No, mean is smaller than the median and the mode. This implies that the data is left skewed. Relatively the difference is not very huge. There are near to the mean. Slightly left skewed.
+
+4. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+SOURCE: https://www.geeksforgeeks.org/normal-distribution-in-r/
+```{r}
+#let's first plot histogram
+hist(height_df$fheight, breaks = 10, probability =TRUE, 
+     main = "Father's height with Normal Distribution",
+     xlab = "Height ( in cm)", col = "skyblue", border = "black")
+
+#let's overlay this distribution with same mean and SD
+curve(dnorm(x, mean = mean_fheight, sd = sd_fheight), 
+      col = "red", lwd = 2, add = TRUE)
+
+
+#adding vertical lines
+abline(v= mean_fheight, col = "blue", lty = 2, lwd = 2)
+abline(v= median_fheight, col = "green", lty = 3, lwd = 2)
+abline(v = mode_fheight, col = "red", lty = 4, lwd = 2)
+```
+
+Observation:  Yes, the histogram and the density plot are similar with slight left skewness. The data is also normally distributed. 
+
+#### (b) Next, let's take a look at the number of citations of research papers. (40pts)
+
+\begin{enumerate}
+\item (3pts) What kind of measure is this?  What kind of valid values would you expect to see (continuous, discrete, positive, ...)
+\item (4pts) Read the \texttt{mag-in-citations.csv} data.  This is Microsoft Academic Graph for citations of research papers, and it contains two columns: paper id and number of citations.  We only care about citations here.  Provide basic descriptives of this variable: how many observations do we have?  Do we have any missing observations?
+\item (8pts) Compute mean, median, mode, standard deviation and range of the heights.  Discuss the relationship between these numbers.  Is mean larger than median?  Than mode?  By how much (in relative terms)? How does standard deviation compare to mean?
+
+\textcolor{blue}{Hint: here you do not want to use any smoothing as we are measuring discrete counts.}
+  Use the plain ``most frequent value'', \texttt{method="mfv"} if
+  using the \texttt{modeest} package.
+
+\item (13pts) Plot a histogram of the data.  Add to this histogram: (1) a plot of normal distribution with the same mean and standard deviation as the data, (2) the sample mean, median, and mode.  You can use vertical lines of different colors to do this. What do you find?  Are the histogram and the density plot similar?
+
+\item (12pts) Plot a histogram of the data on a log-log scale. Add to this histogram vertical lines representing the sample mean, median, and mode (use different colors for each). How does the distribution appear on a log-log scale? Are the mean, median, and mode close together or spread out? What does this tell you about the data's distribution?
+
+\end{enumerate}
+
+
+##### Solution 2 (b)
+
+1. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+```{r}
+
+head(citation_df,5)
+summary(citation_df)
+
+```
+Observation: The data is discrete and non-negative. 
+
+2. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+```{r}
+length(citation_df$citations)
+summary(citation_df$citations)
+sum(is.na(citation_df$citations))
+
+```
+Observation: There are 388258 observations with no missing values. 
+
+3. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+```{r}
+mean_citations = mean(citation_df$citations, na.rm = TRUE)
+
+median_citations = median(citation_df$citations, na.rm = TRUE)
+
+mode_citations = as.numeric(names(sort(table(citation_df$citations), decreasing = TRUE)[1]))
+
+#standard Deviation
+sd_citations = sd(citation_df$citations, na.rm = TRUE)
+
+range_citations = range(citation_df$citations, na.rm = TRUE)
+range_diff = diff(range_citations)
+
+mean_citations
+median_citations
+mode_citations
+sd_citations
+range_citations
+range_diff
+
+```
+Observation: The mean citations are 15.61223. This means that on average, approx each paper was cited 16 times. The median of 3 suggests that there is a very high level of right skewness in the dataset. The SD of 78 is huge.
+
+This is a subjective dataset with high preference of quality, it is likely to have higher skewness, spread and unlikely to follow a perfect bell curve.
+
+4. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+SOURCE: https://stackoverflow.com/questions/14683766/adding-key-legend-to-multi-histogram-plot-in-r
+
+```{r}
+
+
+hist(citation_df$citations, breaks = 4, probability = TRUE, 
+     main = "Citations with Normal Distribution",
+     xlab = "Nos of Citations", col = "lightblue", border = "black")
+
+#overlay ND curve with same mean and standard deviation
+x_values = seq(min(citation_df$citations, na.rm = TRUE), max(citation_df$citations, na.rm = TRUE), length.out = 200)
+normal_distribution= dnorm(x_values, mean = mean_citations, sd = sd_citations)
+lines(x_values, normal_distribution, col = "orange", lwd = 2)
+
+#mean, median, and mode
+abline(v = mean_citations, col = "blue", lty = 2, lwd = 2)
+abline(v = median_citations, col = "green", lty = 3, lwd = 2)
+abline(v = mode_citations, col = "red", lty = 4, lwd = 2)
+
+# Add legend
+legend("topright", legend = c("Normal Distribution", "Mean", "Median", "Mode"),
+       col = c("orange", "blue", "green", "red"), lty = c(1, 2, 3, 4), lwd = 2)
+
+
+
+```
+Observation: Highly skewed data with majority citation counts near zero, right skewed data.
+Data is also not normally distributed. 
+
+5. \textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+```{r}
+
+#adding a small constant to avoid log 0 issues
+log_citations=log10(citation_df$citations + 5)
+
+#let's redo the mean, median and mode
+mean_citations = mean(log_citations, na.rm = TRUE)
+
+median_citations = median(log_citations, na.rm = TRUE)
+
+mode_citations = as.numeric(names(sort(table(log_citations), decreasing = TRUE)[1]))
+
+#standard Deviation
+sd_citations = sd(log_citations, na.rm = TRUE)
+
+
+#Plot
+
+hist(log_citations, breaks = 4, probability = TRUE, 
+     main = "Citations with Normal Distribution",
+     xlab = "Nos of Citations", col = "lightblue", border = "black")
+
+#overlay ND curve with same mean and standard deviation
+x_values = seq(min(log_citations, na.rm = TRUE), max(log_citations, na.rm = TRUE), length.out = 100)
+normal_distribution= dnorm(x_values, mean = mean_citations, sd = sd_citations)
+lines(x_values, normal_distribution, col = "orange", lwd = 2)
+
+#mean, median, and mode
+abline(v = mean_citations, col = "blue", lty = 2, lwd = 2)
+abline(v = median_citations, col = "green", lty = 3, lwd = 2)
+abline(v = mode_citations, col = "red", lty = 4, lwd = 2)
+
+# Add legend
+legend("topright", legend = c("Normal Distribution", "Mean", "Median", "Mode"),
+       col = c("orange", "blue", "green", "red"), lty = c(1, 2, 3, 4), lwd = 2)
+```
+Observation: The data is now more normally distributed with some right skewness. 
+But it still has high concentration of values at the lower end, suggesting bervery high levels of skewness in the original data. The mean,median and mode are still somewhat spread out, mean pulled out be a few high citations. The ND overlay still doesn't align well enough to be called ND.
+ 
+#### (c) (6 pts) Comment on your finding from part (a) and part (b). Be sure to compare the two cases.
+
+\textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+While on one hand, the height data set was highly symmetric with mean, median and mode near to each other, the citations dataset has these values far spread out. 
+
+The height dataset follows a bell curve and the citations dataset does not. 
+
+
