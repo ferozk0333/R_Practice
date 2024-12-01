@@ -1,0 +1,455 @@
+---
+title: 'IMT 573: Problem Set 8 - Regression II'
+author: "Feroz Khan"
+date: 'Due: Tuesday, December 3, 2024 by 10:00PM PT'
+output:
+  pdf_document:
+    latex_engine: xelatex
+  html_document:
+    df_print: paged
+---
+
+<!-- This syntax can be used to add comments that are ignored during knitting process. -->
+
+##### Collaborators: <!-- BE SURE TO LIST ALL COLLABORATORS HERE! -->
+
+##### Instructions:
+
+Before beginning this assignment, please ensure you have access to R and RStudio; this can be on your own personal computer or on the IMT 573 R Studio Server. 
+
+1. Download the `problem_set8.Rmd` file from Canvas or save a copy to your local directory on RStudio Server. Open `problem_set8.Rmd` in RStudio and supply your solutions to the assignment by editing `problem_set8.Rmd`. 
+
+2. Replace the "Insert Your Name Here" text in the `author:` field with your own full name. Any collaborators must be listed on the top of your assignment. 
+
+3. Be sure to include well-documented (e.g. commented) code chucks, figures, and clearly written text chunk explanations as necessary. Any figures should be clearly labeled and appropriately referenced within the text. Be sure that each visualization adds value to your written explanation; avoid redundancy -- you do not need four different visualizations of the same pattern.
+
+4.  Collaboration on problem sets is fun and useful, and we encourage it, but each student must turn in an individual write-up in their own words as well as code/work that is their own.  Regardless of whether you work with others, what you turn in must be your own work; this includes code and interpretation of results. The names of all collaborators must be listed on each assignment. Do not copy-and-paste from other students' responses or code.
+
+5. All materials and resources that you use (with the exception of lecture slides) must be appropriately referenced within your assignment.  
+
+6. Remember partial credit will be awarded for each question for which a serious attempt at finding an answer has been shown. Students are \emph{strongly} encouraged to attempt each question and to document their reasoning process even if they cannot find the correct answer. If you would like to include R code to show this process, but it does not run without errors, you can do so with the `eval=FALSE` option. (Note: I am also using the `include=FALSE` option here to not include this code in the PDF, but you need to remove this or change it to `TRUE` if you want to include the code chunk.)
+
+```{r example chunk with a bug, eval=FALSE, include=FALSE}
+a + b # these object dont' exist 
+# if you run this on its own it with give an error
+```
+
+7. When you have completed the assignment and have **checked** that your code both runs in the Console and knits correctly when you click `Knit PDF`, rename the knitted PDF file to `ps5_YourLastName_YourFirstName.pdf`, and submit the PDF file on Canvas.
+
+
+##### Setup: 
+
+In this problem set you will need, at minimum, the following R packages.
+
+```{r Setup, message=FALSE}
+# Load standard libraries
+library(tidyverse)
+library(MASS) # Modern applied statistics functions
+library(openintro)
+library(fst)
+```
+
+
+
+# Problem 1: Mario Kart (25 pts)
+
+In our regression labs you worked with the Mario Kart dataset. Recall that to load the data you had to use the `openintro` library. You should checkout the regression labs to figure out how to get the `mario_kart` data.
+
+(a) (2pts) Inspect the data using your usual inspect data functions to get a sense of how the variables are encoded and what values they typically take on. Describe the data and variables.
+
+\textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+```{r}
+data("mariokart")
+
+#exploring structure
+
+str(mariokart)
+
+head(mariokart)
+
+summary(mariokart)
+
+```
+Observation: The mario_kart dataset contains information about 143 online auction listings for Mario Kart Wii items. Key variables include id (listing identifier), duration (auction length in days), n_bids (number of bids), cond (item condition: new or used), start_pr (starting price), ship_pr (shipping price), and total_pr (final price including shipping). Additional variables include ship_sp (shipping speed), seller_rate (seller feedback rating), stock_photo (whether a stock photo was used), wheels (number of Wii Wheels included), and title (listing description). The data includes numeric and categorical variables, with typical auction starting prices around $0.99 and total prices varying based on bids, shipping costs, and item condition.
+
+(b) (2 + 2pts) Does the duration of the auction effect the price of a MarioKart? You need to build an a). appropriate model and b). interpret the results to answer the questions.
+
+\textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+Taking duration as the explanatory variable and total_pr (total price) as the response variable.
+```{r}
+
+model = lm(total_pr ~ duration, data = mariokart)
+
+# Summarize
+summary(model)
+
+```
+Observation: The coefficient for duration is -0.4097 with a p-value of 0.625, indicating no statistically significant effect of auction duration on the total price. The very low R-square tells that auction duration explains almost none of the variation in total price.
+
+(c) Experiment with other variables you see fit for this task, that is to see how they effect the price of MarioKart. Do other variables change your results in a major way? Did you have to remove any variables before fitting the model? Make sure that you build an 1). appropriate model while explaining your choice and 2). interpret the results to answer the questions. (pts: 2 model choice + 2 build + 3 interpret + 2 why/whynot remove) 
+
+\textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+Using multiple variables allows us to take into account dependent nature of variables amongst each other.
+Explanatory variables: cond, n_bids, ship_pr, seller_rate, and stock_photo.
+Response variable: total_pr
+
+Removing variables with insignificant p-values or multiple variables with high correlation should be removed. Example, If seller_rate and stock_photo are not significant and show high collinearity, they can be removed.
+```{r}
+
+model_mlm = lm(total_pr ~ cond + n_bids + ship_pr + seller_rate + stock_photo, data = mariokart)
+
+# Summarize
+summary(model_mlm)
+
+```
+Observation:The condition of the item (cond) and the shipping price (ship_pr) are the strongest predictors of the total price of Mario Kart items. Used items sell for significantly less, and higher shipping prices increase total price substantially. R-square has moderate exlanatory power.
+
+We can remove variables like seller_rate and stock_photo to simplify the model. 
+
+
+(d) Now let's check for interactions. Does duration effect the price of MarioKart based on the condition being new or used? You need to a). explain the choice of your model, b). build the model, c). interpret model results to answer this question. d). draw appropriate visual to confirm your interpretation. *Hint: You should think about plotting price versus duration, colored by condition* (pts: 2 choice + 2 build + 3 interpret + 3 visual)
+
+\textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+To achieve this, we should include an interaction term between duration and cond in the regression model. This will allow to check if relationship between duration and total_pr differs based on whether the item is new or used.
+```{r}
+
+model_interaction = lm(total_pr~ duration * cond, data = mariokart)
+
+summary(model_interaction)
+
+
+#plot price vs. duration
+ggplot(mariokart,aes(x =duration, y = total_pr, color = cond)) +
+  geom_point() +
+  geom_smooth(method = "lm", aes(fill = cond), alpha = 0.2) +
+  labs(title = "Interaction",
+       x = "Auction Duration (days)",
+       y = "Total Price (USD)",
+       color = "Condition",
+       fill = "Condition") +
+  theme_minimal()
+
+```
+Observation: The interaction term (duration:condused) is not statistically significant, indicating no evidence that the effect of auction duration on price depends on the item's condition. However, the main effect for condused shows that used items sell for $17.56 less than new items on average. The model explains only a small portion of the variance.
+
+# Problem 2: Titanic Data (42 pts)
+
+\noindent \textbf{Data:} In this problem set we will use the titanic dataset. The titanic text file contains data about the survival of passengers aboard the Titanic. Table \ref{tab:data} contains a description of this data. 
+\vspace{.1in}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{|l|l|}
+\hline
+{\bf Variable} & {\bf Description} \\ \hline \hline
+pclass      &    Passenger Class \\
+            &    (1 = 1st; 2 = 2nd; 3 = 3rd) \\ \hline
+survived    &    Survival \\
+            &    (0 = No; 1 = Yes) \\ \hline
+name        &    Name \\ \hline
+sex         &    Sex \\ \hline
+age         &    Age \\ \hline
+sibsp       &    Number of Siblings/Spouses Aboard \\ \hline
+parch       &    Number of Parents/Children Aboard \\ \hline 
+ticket      &    Ticket Number \\ \hline
+fare        &    Passenger Fare \\ \hline
+cabin       &    Cabin \\ \hline
+embarked    &    Port of Embarkation \\
+            &    (C = Cherbourg; Q = Queenstown; S = Southampton) \\ \hline
+boat        &    Lifeboat \\ \hline
+body        &    Body Identification Number \\ \hline
+home.dest   &    Home/Destination \\
+\hline
+\end{tabular}
+\caption{Description of variables in the Titanic Dataset}
+\label{tab:data}
+\end{table}
+\vspace{.1in}
+
+\newpage
+
+
+### Part a (Preprocessing)  (5 pts)
+
+1)  (2 pts) Load the data and do a quick sanity check. That is, inspect the data using your usual inspect data functions to get a sense of how the variables are encoded and what values they typically take on.
+
+\textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+```{r}
+#loading dataset
+titanic = read.delim("titanic.csv", header = TRUE, sep = ",")
+
+str(titanic)
+
+head(titanic)
+
+summary(titanic)
+
+
+```
+Observation: Variables include Survived (0 or 1), Pclass (Passenger class), Sex, Age, SibSp (siblings/spouses aboard), Parch (parents/children aboard), Fare, and Embarked.
+
+2)  (3 pts) Are there missing values for any of the important variables? Find and list those. Based on missing values, reflect whether they are going useful for downstream modeling tasks.
+
+\textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+```{r}
+
+missing = colSums(is.na(titanic))
+missing
+
+
+```
+Observation: There are missing values in Age column. Yes, it is useful and significant as we may want to use that information to build a model. Missing Age values may reduce the predictive power of the model.
+
+
+### Part b (Categorical output)  (17 pts)
+
+1) (4 pts) Our goal is to determine the survival of passengers that takes into account the socioeconomic status of the passengers. What model would you fit? Explain the choice of your model and then fit the model.
+
+\textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+I would choose logistic regression model as there are categorical variables. These cannot have a linear line as the values are bounded and cannot be negative.
+```{r}
+
+model_survival = glm(Survived ~ Pclass, data= titanic, family = binomial)
+
+summary(model_survival)
+
+```
+Observation: I can see that Passenger class (Pclass) significantly affects survival, with lower-class passengers having lower odds of survival compared to upper-class passengers. Pclass has a negative coefficient. 
+
+2) (4 pts) What might you conclude based on this model about the probability of survival for lower class passengers?
+
+\textbf{\textcolor{red}{Solution:}}
+
+Observation: Decreases, reflecting the impact of socioeconomic status on survival outcomes.
+The coefficient for Pclass is negative (-0.850), indicating that as Pclass increases, the log odds of survival decrease.
+
+3) (4 pts) Create a new variable child, that is 1 if the passenger was younger than 14 years old. Check to make sure you have the new variable added in your dataframe.
+
+\textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+I will use the ifelse function to do this.
+```{r}
+
+titanic$child = ifelse(titanic$Age < 14, 1, 0)
+
+#let;s check
+head(titanic$child)  
+summary(titanic$child)  
+
+
+```
+Observation: Successfully added the variable child.
+
+4) (5 pts) Now you are curious to know whether men or women, old or young, or people of difference passenger classes have larger chances of survival. Build an appropriate model to answer this curiosity. Explain the choice of your model. Interpret results
+
+\textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+I will use multi logistic regresion model that will take into account multiple factors to do predictions. Also, there are categorical variables which is why logistic model is best (as explained in the previous answer as well).
+
+Response variable: Survived (binary: 0 = did not survive, 1 = survived).
+Predictors: Sex, child (young vs. old), Pclass (socioeconomic status).
+```{r}
+#fitting the model
+model_survival_multi = glm(Survived ~ Sex + child + Pclass, family = binomial, data = titanic)
+
+summary(model_survival_multi)
+
+```
+Observation: 
+Sexmale = -2.5642: Men have significantly lower odds of survival compared to women.
+child = 1.3553: Children have significantly higher odds of survival compared to adults.
+Pclass = -1.0951: Lower-class passengers have significantly lower odds of survival compared to upper-class passengers.
+
+
+### Part c - Predictions with a categorical output  (20 pts)
+Now let's try to do some predictions with the titanic data. Our goal is to predict the survival of passengers by considering only the socioeconomic status of the passenger.. 
+
+1) (4 pts) After loading the data, split your data into a \emph{training} and \emph{test} set based on an 80-20 split. In other words, 80\% of the observations will be in the training set and 20\% will be in the test set. Remember to set the random seed.
+
+\textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+```{r}
+
+#random seed to remember the split 
+set.seed(123)
+
+#number of rows in the dataset
+n = nrow(titanic)
+
+train_indices = sample(1:n, size = 0.8 * n)
+
+#split the data
+train_data = titanic[train_indices, ]
+test_data=titanic[-train_indices, ]
+
+cat("Training set size:", nrow(train_data), "\n")
+cat("Test set size:", nrow(test_data), "\n")
+
+```
+Observation: Successfully split the data into training and testing parts.
+
+2) (4 pts) Fit the model described above (that is in Problem 1 (c), that only takes into account socio-economic status).
+
+\textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+I will use the same code and only change the input data source here.
+```{r}
+
+model_pclass = glm(Survived ~ Pclass, data = train_data, family = binomial)
+
+summary(model_pclass)
+
+```
+
+
+3) (4 pts) Predict the survival of passengers for each observation in your test set using the model fit that you just fitted. Save these predictions as yhat.
+
+\textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+```{r}
+#using test dataset to get probabilities
+yhat_prob = predict(model_pclass, newdata = test_data, type = "response")
+
+#convert probabilities to binary predictions
+yhat=ifelse(yhat_prob > 0.5, 1, 0)
+
+test_data$yhat=yhat
+
+head(test_data[, c("Survived", "yhat")])
+
+
+```
+Observation: yhat contains binary predictions for survival. 
+
+4) (4 pts) Use a threshold of 0.5 to classify predictions. What is the number of false positives on the test data? Interpret this in your own words.
+
+\textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+Already classified predictions in the previous question. Let's work on false positives.
+
+A FP is the case when the prediction is True but in reality it is False.
+```{r}
+false_positives = sum(test_data$yhat == 1 & test_data$Survived == 0)
+
+#displaying results
+cat("Number of false positives:", false_positives, "\n")
+
+
+```
+Observation: The model produced 12 false positives, meaning it incorrectly predicted that 12 passengers in the test set would survive when, in reality, they did not. This indicates that while the model has some predictive ability, it may overestimate survival likelihood for certain passengers.
+
+
+5) (4 pts) Pick a different threshold to classify predictions and interpret your results again. Did you have a rationale when picking a different threshold? Did you see any change? Reflect on your results.
+
+\textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+New threshold - 0.3. Reason is to cut down on False Negatives at the cost of False Positives.
+```{r}
+
+
+yhat_new = ifelse(yhat_prob > 0.3, 1, 0)
+
+false_positives = sum(yhat_new == 1 & test_data$Survived == 0)
+
+false_negatives = sum(yhat_new == 0 & test_data$Survived == 1)
+
+cat("Number of false positives:", false_positives, "\n")
+cat("Number of false negatives:", false_negatives, "\n")
+
+```
+Observation: The FP have increased dramatically, reflecting more non-survivors incorrectly classified as survivors. A lower threshold prioritizes capturing more survivors, reducing false negatives. 
+
+I think that the choice of threshold is subjective: if correctly predicting survivors is more important than minimizing false alarms, a lower threshold is justified.
+
+# Problem 3: Customer Churn data (25 pts) 
+In this problem, you will work with the churn dataset. Documentation of the dataset can be found here: https://www.rdocumentation.org/packages/bayesQR/versions/2.3/topics/Churn
+
+The dataset is random sample from all active customers  (at the end of June 2006) of a European financial services company. The data captures the churn behavior of the customers in the period from July 1st until December 31th 2006. Here a churned customer is defined as someone who closed all his/her bank accounts with the company. 
+
+1) (5 pts) Read and inspect the data. _Hint: the file is an fst fast-storage format file. Check your regression lab to figure out how you can read this file_
+
+\textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+```{r}
+
+churn_data = read_fst("churn.fst")
+
+str(churn_data)
+
+head(churn_data)
+
+summary(churn_data)
+
+```
+
+2) (5 pts) Describe the data and variables that are part of the churn dataset.
+
+\textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+Observation:
+
+The dataset contains 400 observations and 3 variables. It provides customer churn behaviour data.
+
+has_churned: Binary variable (0 = not churned, 1 = churned).
+time_since_first_purchase: Numeric variable, indicating time since the first purchase.
+time_since_last_purchase: Numeric variable, indicating time since the last purchase.
+
+It can also be observed that the latter two variables are standardized.
+
+3) (5 pts) Considering this data in context, what is the response variable of interest?
+
+\textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+
+Observation: The response variable of interest is has_churned, which indicates whether a customer churned (1 = churned, 0 = not churned). This variable represents the outcome aimed to predict in the context of customer retention in the banking sector.
+
+4) (10 pts) Our goal is to determine customer churn. Which variables do you think are the most important ones to describe customer churn? How should those be related to the churn? Interpret your results.
+
+\textbf{\textcolor{red}{Solution:}}
+
+###### Insert Response
+Observation: I think both the possible response variables are important in this case. In fact, both variables are key in predicting churn as they capture customer engagement and loyalty patterns.
+
+time_since_first_purchase: Shorter times since the first purchase may indicate higher churn risk due to less established loyalty.
+time_since_last_purchase: Longer times since the last purchase likely correlate with higher churn, reflecting inactivity.
+
+```{r}
+
+churn_model = glm(has_churned ~ time_since_first_purchase + time_since_last_purchase, 
+                   data = churn_data, family = binomial)
+
+summary(churn_model)
+
+
+```
+
+Customers with longer inactivity (time_since_last_purchase) are more likely to churn. At the same time, long-term customers are less likely to churn, suggesting loyalty reduces churn risk.
